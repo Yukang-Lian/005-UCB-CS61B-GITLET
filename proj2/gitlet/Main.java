@@ -19,15 +19,26 @@ public class Main {
         }
         String firstArg = args[0];
         switch (firstArg) {
+
+            /* * init command */
             case "init":
                 // TODO: handle the `init` command
                 validArgs(args, 1);
+
+                Repository.init();
                 break;
+
+            /* * add command */
             case "add":
                 // TODO: handle the `add [filename]` command
                 validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+
+                Repository.add(args[1]);
                 break;
             // TODO: FILL THE REST IN
+
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);
