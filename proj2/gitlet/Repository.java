@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.Date;
 
 import static gitlet.Utils.*;
@@ -31,7 +32,14 @@ public class Repository {
     public static final File CWD = new File(System.getProperty("user.dir"));
 
     /*
-
+     *   .gitlet
+     *      |--objects
+     *      |     |--commit and blob
+     *      |--refs
+     *      |    |--heads
+     *      |         |--master
+     *      |--HEAD
+     *      |--stage
      */
 
     /**
@@ -44,7 +52,9 @@ public class Repository {
     public static final File HEAD_FILE = join(GITLET_DIR, "HEAD");
     public static final File STAGE = join(GITLET_DIR, "stage");
 
+    public static Commit currCommmit;
 
+    public static Stage addStage = new Stage();
 
 
     /* TODO: fill in the rest of this class. */
@@ -62,6 +72,7 @@ public class Repository {
 
         initCommit();
         initHEAD();
+        initHeads();
     }
 
     public static void checkIfInitialized() {
@@ -71,16 +82,43 @@ public class Repository {
         }
     }
 
-    public static void initHEAD() {
+    private static void initHEAD() {
         writeContents(HEAD_FILE, "ref: refs/heads/master");
     }
 
-    public static void initCommit() {
+    private static void initCommit() {
         Commit initCommit = new Commit();
+        currCommmit = initCommit;
         initCommit.save();
     }
 
-    /* * add command funtion */
-    public static void add(String fileName) {
+    private static void initHeads() {
+        File HEADS_FILE = join(HEADS_DIR, "master");
+        writeContents(HEADS_FILE, currCommmit.getID());
     }
+
+    /* * add command funtion */
+    public static void add(String file) {
+        File fileName = getFileFromCWD(file);
+        if (!fileName.exists()) {
+            System.out.println("File does not exist.");
+            System.exit(0);
+        }
+        Blob blob = new Blob(fileName);
+        if (addStage.isNewBlob(blob)) {
+            blob.save();
+            if (addStage.isFilePathExists(blob.getPath())) {
+                addStage.delete(blob);
+            }
+            addStage.add(blob);
+        }
+    }
+
+    private static File getFileFromCWD(String file) {
+        return Paths.get(file).isAbsolute()
+                ? new File(file)
+                : join(CWD, file);
+    }
+
+
 }

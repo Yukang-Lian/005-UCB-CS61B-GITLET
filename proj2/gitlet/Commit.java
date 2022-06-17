@@ -33,7 +33,7 @@ public class Commit implements Serializable {
      */
     private String message;
 
-    private Map<String, String> map = new HashMap<>();
+    private Map<String, String> blobMap = new HashMap<>();
 
     private List<String> parents;
 
@@ -41,39 +41,39 @@ public class Commit implements Serializable {
 
     private String id;
 
-    private File fileName;
+    private File commitFileName;
 
-    private File dirName;
+    private File commitDirName;
 
 
     /* TODO: fill in the rest of this class. */
 
-    public Commit(String message, Map<String, String> map, List<String> parents) {
+    public Commit(String message, Map<String, String> blobMap, List<String> parents) {
         this.message = message;
-        this.map = map;
+        this.blobMap = blobMap;
         this.parents = parents;
         this.currentTime = new Date();
         this.id = generateID();
-        this.dirName = generateDirName();
-        this.fileName = generateFileName();
+        this.commitDirName = generateDirName();
+        this.commitFileName = generateFileName();
     }
 
     public Commit() {
         this.currentTime = new Date(0);
         this.message = "initial commit";
-        this.map = new HashMap<>();
+        this.blobMap = new HashMap<>();
         this.parents = new ArrayList<>();
         this.id = generateID();
-        this.dirName = generateDirName();
-        this.fileName = generateFileName();
+        this.commitDirName = generateDirName();
+        this.commitFileName = generateFileName();
     }
 
     public String getMessage() {
         return message;
     }
 
-    public Map<String, String> getMap() {
-        return map;
+    public Map<String, String> getBlobMap() {
+        return blobMap;
     }
 
     public List<String> getPrevCommit() {
@@ -94,7 +94,7 @@ public class Commit implements Serializable {
     }
 
     private String generateID() {
-        return Utils.sha1(generateTimeStamp(), message, parents.toString(), map.toString());
+        return Utils.sha1(generateTimeStamp(), message, parents.toString(), blobMap.toString());
     }
 
     private File generateDirName() {
@@ -104,13 +104,13 @@ public class Commit implements Serializable {
 
     private File generateFileName() {
         String fileName = id.substring(2);
-        return join(this.dirName, fileName);
+        return join(this.commitDirName, fileName);
     }
 
     public void save() {
-        if (!dirName.exists()) {
-            mkdir(dirName);
+        if (!commitDirName.exists()) {
+            mkdir(commitDirName);
         }
-        writeObject(fileName, this);
+        writeObject(commitFileName, this);
     }
 }
