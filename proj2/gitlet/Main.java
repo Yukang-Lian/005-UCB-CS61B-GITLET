@@ -38,6 +38,13 @@ public class Main {
                 Repository.add(args[1]);
                 break;
             // TODO: FILL THE REST IN
+            case "commit":
+                validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+
+                Repository.commit(args[1]);
+                break;
 
             default:
                 System.out.println("No command with that name exists.");

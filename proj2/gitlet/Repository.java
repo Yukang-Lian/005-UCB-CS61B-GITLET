@@ -120,5 +120,8 @@ public class Repository {
                 : join(CWD, file);
     }
 
+    /* * add command funtion */
+    public static void commit(String message){
 
+    }
 }
