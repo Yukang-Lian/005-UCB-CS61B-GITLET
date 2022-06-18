@@ -149,27 +149,62 @@ public class Repository {
     }
 
     private static Commit newCommit(String message) {
-        Map<String, String> blobMap = findBlobMap();
-        checkIfNewCommit(blobMap);
+        Map<String, String> addBlobMap = findAddBlobMap();
+        Map<String, String> removeBlobMap = findRemoveBlobMap();
+        checkIfNewCommit(addBlobMap, removeBlobMap);
+
+        currCommit = readCurrCommmit();
+        Map<String, String> blobMap = getBlobMapFromCurrCommit(currCommit);
+
+        blobMap = caculateBlobMap(blobMap, addBlobMap, removeBlobMap);
         List<String> parents = findParents();
         return new Commit(message, blobMap, parents);
     }
 
-    private static Map<String, String> findBlobMap() {
-        Map<String, String> blobMap = new HashMap<>();
+    private static Map<String, String> findAddBlobMap() {
+        Map<String, String> addBlobMap = new HashMap<>();
         addStage = readAddStage();
-        List<Blob> blobList = addStage.getBlobList();
-        for (Blob b : blobList) {
-            blobMap.put(b.getPath(), b.getBlobID());
+        List<Blob> addBlobList = addStage.getBlobList();
+        for (Blob b : addBlobList) {
+            addBlobMap.put(b.getPath(), b.getBlobID());
         }
-        return blobMap;
+        return addBlobMap;
     }
 
-    private static void checkIfNewCommit(Map<String, String> blobMap) {
-        if (blobMap.isEmpty()) {
+    private static Map<String, String> findRemoveBlobMap() {
+        Map<String, String> removeBlobMap = new HashMap<>();
+        removeStage = readRemoveStage();
+        List<Blob> removeBlobList = removeStage.getBlobList();
+        for (Blob b : removeBlobList) {
+            removeBlobMap.put(b.getPath(), b.getBlobID());
+        }
+        return removeBlobMap;
+    }
+
+
+    private static void checkIfNewCommit(Map<String, String> addBlobMap, Map<String, String> removeBlobMap) {
+        if (addBlobMap.isEmpty() && removeBlobMap.isEmpty()) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
+    }
+
+    private static Map<String, String> getBlobMapFromCurrCommit(Commit currCommit) {
+        return currCommit.getPathToBlobID();
+    }
+
+    private static Map<String, String> caculateBlobMap(Map<String, String> blobMap, Map<String, String> addBlobMap, Map<String, String> removeBlobMap) {
+        if (!addBlobMap.isEmpty()) {
+            for (String path : addBlobMap.keySet()) {
+                blobMap.put(path, addBlobMap.get(path));
+            }
+        }
+        if (!removeBlobMap.isEmpty()) {
+            for (String path : removeBlobMap.keySet()) {
+                blobMap.remove(path);
+            }
+        }
+        return blobMap;
     }
 
     private static List<String> findParents() {
@@ -214,7 +249,7 @@ public class Repository {
             addStage.saveAddStage();
         } else if (currCommit.exists(filePath)) {
             removeStage = readRemoveStage();
-            Blob removeBlob = getBlobFromCurrCommit(filePath, currCommit);
+            Blob removeBlob = getBlobFromCurrCommitByPath(filePath, currCommit);
             removeStage.add(removeBlob);
             removeStage.saveRemoveStage();
             deleteFile(file);
@@ -231,7 +266,7 @@ public class Repository {
         return readObject(REMOVESTAGE_FILE, Stage.class);
     }
 
-    private static Blob getBlobFromCurrCommit(String filePath, Commit currCommmit) {
+    private static Blob getBlobFromCurrCommitByPath(String filePath, Commit currCommmit) {
         String blobID = currCommmit.getPathToBlobID().get(filePath);
         return Stage.getBlobByID(blobID);
     }
