@@ -251,6 +251,7 @@ public class Repository {
             List<String> parentsCommitID = currCommmit.getParentsCommit();
             currCommmit = readCommitByID(parentsCommitID.get(0));
         }
+        printCommit(currCommmit);
     }
 
     private static boolean isMergeCommit(Commit currCommmit) {

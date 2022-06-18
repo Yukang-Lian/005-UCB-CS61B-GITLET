@@ -33,7 +33,7 @@ public class Commit implements Serializable {
      */
     private String message;
 
-    private Map<String, String> pathToBlobID= new HashMap<>();
+    private Map<String, String> pathToBlobID = new HashMap<>();
 
     private List<String> parents;
 
@@ -50,7 +50,7 @@ public class Commit implements Serializable {
 
     public Commit(String message, Map<String, String> pathToBlobID, List<String> parents) {
         this.message = message;
-        this.pathToBlobID= pathToBlobID;
+        this.pathToBlobID = pathToBlobID;
         this.parents = parents;
         this.currentTime = new Date();
         this.id = generateID();
@@ -89,8 +89,8 @@ public class Commit implements Serializable {
     }
 
     private String generateTimeStamp() {
-        DateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);
-        return dateFormat.format(currentTime);
+        DateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
+        return dateFormat.format(currentTime) + " +0800";
     }
 
     private String generateID() {
