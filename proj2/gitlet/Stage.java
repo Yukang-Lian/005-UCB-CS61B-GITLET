@@ -45,8 +45,12 @@ public class Stage implements Serializable {
         }
     }
 
-    public void save() {
+    public void saveAddStage() {
         writeObject(Repository.ADDSTAGE_FILE, this);
+    }
+
+    public  void saveRemoveStage(){
+        writeObject(Repository.REMOVESTAGE_FILE, this);
     }
 
     public void clear() {

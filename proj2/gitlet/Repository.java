@@ -118,7 +118,7 @@ public class Repository {
                 addStage.delete(blob);
             }
             addStage.add(blob);
-            addStage.save();
+            addStage.saveAddStage();
         }
     }
 
@@ -144,7 +144,7 @@ public class Repository {
         Commit newCommit = newCommit(message);
         newCommit.save();
         addStage.clear();
-        addStage.save();
+        addStage.saveAddStage();
         saveHeads(newCommit);
     }
 
@@ -214,11 +214,11 @@ public class Repository {
         currCommmit = readCurrCommmit();
         if (addStage.exists(filePath)) {
             addStage.delete(filePath);
-            addStage.save();
+            addStage.saveAddStage();
         } else if (currCommmit.exists(filePath)) {
             removeStage = readRemoveStage();
             removeStage.add(new Blob(file));
-            removeStage.save();
+            removeStage.saveRemoveStage();
             deleteFile(file);
         } else {
             System.out.println("No reason to remove the file.");
