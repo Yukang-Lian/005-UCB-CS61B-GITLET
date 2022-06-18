@@ -294,7 +294,7 @@ public class Repository {
         return readObject(CURR_COMMIT_FILE, Commit.class);
     }
 
-    /* * log command funtion */
+    /* * global-log command funtion */
     public static void global_log() {
         List<String> commitList = plainFilenamesIn(OBJECT_DIR);
         Commit commit;
@@ -307,6 +307,33 @@ public class Repository {
                     printCommit(commit);
                 }
             } catch (Exception ignore) {
+            }
+        }
+    }
+
+    /* * find command funtion */
+    public static void find(String findMessage) {
+        List<String> commitList = plainFilenamesIn(OBJECT_DIR);
+        List<String> idList = new ArrayList<String>();
+        Commit commit;
+        for (String id : commitList) {
+            try {
+                commit = readCommitByID(id);
+                if (findMessage.equals(commit.getMessage())) {
+                    idList.add(id);
+                }
+            } catch (Exception ignore) {
+            }
+        }
+        printID(idList);
+    }
+
+    private static void printID(List<String> idList) {
+        if (idList.isEmpty()) {
+            System.out.println("Found no commit with that message.");
+        } else {
+            for (String id : idList) {
+                System.out.println(id);
             }
         }
     }

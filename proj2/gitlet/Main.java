@@ -68,12 +68,20 @@ public class Main {
 
             /* * global-log command */
             case "global-log":
-
                 validArgs(args, 1);
 
                 Repository.checkIfInitialized();
 
                 Repository.global_log();
+                break;
+
+            /* * find command */
+            case "find":
+                validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+
+                Repository.find(args[1]);
                 break;
 
             default:
