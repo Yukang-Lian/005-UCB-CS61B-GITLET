@@ -215,11 +215,7 @@ public class Repository {
         if (addStage.exists(filePath)) {
             addStage.delete(filePath);
             addStage.saveAddStage();
-        } else if (currCommmit.exists(filePath)) {
-            if (!file.exists()) {
-                System.out.println(fileName + " did not match any file.");
-                System.exit(0);
-            }
+        } else if (currCommmit.exists(filePath) && file.exists()) {
             removeStage = readRemoveStage();
             removeStage.add(new Blob(file));
             removeStage.saveRemoveStage();
@@ -236,5 +232,7 @@ public class Repository {
         }
         return readObject(REMOVESTAGE_FILE, Stage.class);
     }
+
+    /* * log command funtion */
 
 }
