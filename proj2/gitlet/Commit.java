@@ -45,6 +45,8 @@ public class Commit implements Serializable {
 
     private File commitDirName;
 
+    private String timeStamp;
+
 
     /* TODO: fill in the rest of this class. */
 
@@ -53,6 +55,7 @@ public class Commit implements Serializable {
         this.pathToBlobID = pathToBlobID;
         this.parents = parents;
         this.currentTime = new Date();
+        this.timeStamp = dateToTimeStamp(this.currentTime);
         this.id = generateID();
         this.commitDirName = generateDirName();
         this.commitFileName = generateFileName();
@@ -60,6 +63,7 @@ public class Commit implements Serializable {
 
     public Commit() {
         this.currentTime = new Date(0);
+        this.timeStamp = dateToTimeStamp(this.currentTime);
         this.message = "initial commit";
         this.pathToBlobID = new HashMap<>();
         this.parents = new ArrayList<>();
@@ -68,8 +72,17 @@ public class Commit implements Serializable {
         this.commitFileName = generateFileName();
     }
 
+    private static String dateToTimeStamp(Date date) {
+        DateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.US);
+        return dateFormat.format(date);
+    }
+
     public String getMessage() {
         return message;
+    }
+
+    public String getTimeStamp() {
+        return timeStamp;
     }
 
     public Map<String, String> getPathToBlobID() {
@@ -89,8 +102,8 @@ public class Commit implements Serializable {
     }
 
     private String generateTimeStamp() {
-        DateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
-        return dateFormat.format(currentTime) + " +0800";
+        DateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.CHINA);
+        return dateFormat.format(currentTime);
     }
 
     private String generateID() {

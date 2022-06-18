@@ -285,7 +285,7 @@ public class Repository {
     }
 
     private static void printCommitDate(Commit currCommmit) {
-        System.out.println("Date: " + currCommmit.getCurrentTime());
+        System.out.println("Date: " + currCommmit.getTimeStamp());
     }
 
     private static void printCommitMessage(Commit currCommmit) {
