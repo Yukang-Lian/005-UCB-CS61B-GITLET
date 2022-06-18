@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static gitlet.MyUtiles.mkdir;
+import static gitlet.Repository.OBJECT_DIR;
 import static gitlet.Utils.join;
 import static gitlet.Utils.writeObject;
 
@@ -43,8 +44,6 @@ public class Commit implements Serializable {
 
     private File commitFileName;
 
-    private File commitDirName;
-
     private String timeStamp;
 
 
@@ -57,7 +56,6 @@ public class Commit implements Serializable {
         this.currentTime = new Date();
         this.timeStamp = dateToTimeStamp(this.currentTime);
         this.id = generateID();
-        this.commitDirName = generateDirName();
         this.commitFileName = generateFileName();
     }
 
@@ -68,7 +66,6 @@ public class Commit implements Serializable {
         this.pathToBlobID = new HashMap<>();
         this.parents = new ArrayList<>();
         this.id = generateID();
-        this.commitDirName = generateDirName();
         this.commitFileName = generateFileName();
     }
 
@@ -110,20 +107,12 @@ public class Commit implements Serializable {
         return Utils.sha1(generateTimeStamp(), message, parents.toString(), pathToBlobID.toString());
     }
 
-    private File generateDirName() {
-        String dirName = id.substring(0, 2);
-        return join(Repository.OBJECT_DIR, dirName);
-    }
 
     private File generateFileName() {
-        String fileName = id.substring(2);
-        return join(this.commitDirName, fileName);
+       return join(OBJECT_DIR,id);
     }
 
     public void save() {
-        if (!commitDirName.exists()) {
-            mkdir(commitDirName);
-        }
         writeObject(commitFileName, this);
     }
 

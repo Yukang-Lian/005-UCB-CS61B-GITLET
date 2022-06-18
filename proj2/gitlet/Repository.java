@@ -53,7 +53,7 @@ public class Repository {
     public static final File ADDSTAGE_FILE = join(GITLET_DIR, "add_stage");
     public static final File REMOVESTAGE_FILE = join(GITLET_DIR, "remove_stage");
 
-    public static Commit currCommmit;
+    public static Commit currCommit;
 
     public static Stage addStage = new Stage();
     public static Stage removeStage = new Stage();
@@ -90,13 +90,13 @@ public class Repository {
 
     private static void initCommit() {
         Commit initCommit = new Commit();
-        currCommmit = initCommit;
+        currCommit = initCommit;
         initCommit.save();
     }
 
     private static void initHeads() {
         File HEADS_FILE = join(HEADS_DIR, "master");
-        writeContents(HEADS_FILE, currCommmit.getID());
+        writeContents(HEADS_FILE, currCommit.getID());
     }
 
     /* * add command funtion */
@@ -174,17 +174,14 @@ public class Repository {
 
     private static List<String> findParents() {
         List<String> parents = new ArrayList<>();
-        currCommmit = readCurrCommmit();
-        parents.add(currCommmit.getID());
+        currCommit = readCurrCommmit();
+        parents.add(currCommit.getID());
         return parents;
     }
 
     private static Commit readCurrCommmit() {
         String currCommmitID = readCurrCommmitID();
-        String dirName = currCommmitID.substring(0, 2);
-        String fileName = currCommmitID.substring(2);
-        File CURR_COMMIT_DIR = join(OBJECT_DIR, dirName);
-        File CURR_COMMIT_FILE = join(CURR_COMMIT_DIR, fileName);
+        File CURR_COMMIT_FILE = join(OBJECT_DIR, currCommmitID);
         return readObject(CURR_COMMIT_FILE, Commit.class);
     }
 
@@ -195,10 +192,10 @@ public class Repository {
     }
 
     private static void saveHeads(Commit newCommit) {
-        currCommmit = newCommit;
+        currCommit = newCommit;
         String currBranch = readCurrBranch();
         File HEADS_FILE = join(HEADS_DIR, currBranch);
-        writeContents(HEADS_FILE, currCommmit.getID());
+        writeContents(HEADS_FILE, currCommit.getID());
     }
 
     private static String readCurrBranch() {
@@ -210,14 +207,14 @@ public class Repository {
         File file = getFileFromCWD(fileName);
         String filePath = file.getPath();
         addStage = readAddStage();
-        currCommmit = readCurrCommmit();
+        currCommit = readCurrCommmit();
 
         if (addStage.exists(filePath)) {
             addStage.delete(filePath);
             addStage.saveAddStage();
-        } else if (currCommmit.exists(filePath)) {
+        } else if (currCommit.exists(filePath)) {
             removeStage = readRemoveStage();
-            Blob removeBlob = getBlobFromCurrCommit(filePath, currCommmit);
+            Blob removeBlob = getBlobFromCurrCommit(filePath, currCommit);
             removeStage.add(removeBlob);
             removeStage.saveRemoveStage();
             deleteFile(file);
@@ -241,17 +238,17 @@ public class Repository {
 
     /* * log command funtion */
     public static void log() {
-        currCommmit = readCurrCommmit();
-        while (!currCommmit.getParentsCommit().isEmpty()) {
-            if (isMergeCommit(currCommmit)) {
-                printMergeCommit(currCommmit);
+        currCommit = readCurrCommmit();
+        while (!currCommit.getParentsCommit().isEmpty()) {
+            if (isMergeCommit(currCommit)) {
+                printMergeCommit(currCommit);
             } else {
-                printCommit(currCommmit);
+                printCommit(currCommit);
             }
-            List<String> parentsCommitID = currCommmit.getParentsCommit();
-            currCommmit = readCommitByID(parentsCommitID.get(0));
+            List<String> parentsCommitID = currCommit.getParentsCommit();
+            currCommit = readCommitByID(parentsCommitID.get(0));
         }
-        printCommit(currCommmit);
+        printCommit(currCommit);
     }
 
     private static boolean isMergeCommit(Commit currCommmit) {
@@ -293,10 +290,24 @@ public class Repository {
     }
 
     private static Commit readCommitByID(String commitID) {
-        String dirName = commitID.substring(0, 2);
-        String fileName = commitID.substring(2);
-        File CURR_COMMIT_DIR = join(OBJECT_DIR, dirName);
-        File CURR_COMMIT_FILE = join(CURR_COMMIT_DIR, fileName);
+        File CURR_COMMIT_FILE = join(OBJECT_DIR, commitID);
         return readObject(CURR_COMMIT_FILE, Commit.class);
+    }
+
+    /* * log command funtion */
+    public static void global_log() {
+        List<String> commitList = plainFilenamesIn(OBJECT_DIR);
+        Commit commit;
+        for (String id : commitList) {
+            try {
+                commit = readCommitByID(id);
+                if (isMergeCommit(commit)) {
+                    printMergeCommit(commit);
+                } else {
+                    printCommit(commit);
+                }
+            } catch (Exception ignore) {
+            }
+        }
     }
 }

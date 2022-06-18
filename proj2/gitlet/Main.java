@@ -66,6 +66,16 @@ public class Main {
                 Repository.log();
                 break;
 
+            /* * global-log command */
+            case "global-log":
+
+                validArgs(args, 1);
+
+                Repository.checkIfInitialized();
+
+                Repository.global_log();
+                break;
+
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);
