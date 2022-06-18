@@ -16,7 +16,6 @@ public class Stage implements Serializable {
     private Map<String, String> pathToBlobID = new HashMap<>();
 
 
-
     public boolean isNewBlob(Blob blob) {
         if (!pathToBlobID.containsValue((blob.getBlobID()))) {
             return true;
@@ -36,20 +35,18 @@ public class Stage implements Serializable {
     }
 
     public void delete(String path) {
-       pathToBlobID.remove(path);
+        pathToBlobID.remove(path);
     }
 
     public void add(Blob blob) {
-        if (!pathToBlobID.containsKey(blob.getPath())) {
-            pathToBlobID.put(blob.getPath(), blob.getBlobID());
-        }
+        pathToBlobID.put(blob.getPath(), blob.getBlobID());
     }
 
     public void saveAddStage() {
         writeObject(Repository.ADDSTAGE_FILE, this);
     }
 
-    public  void saveRemoveStage(){
+    public void saveRemoveStage() {
         writeObject(Repository.REMOVESTAGE_FILE, this);
     }
 
@@ -61,13 +58,13 @@ public class Stage implements Serializable {
         Blob blob;
         List<Blob> blobList = new ArrayList<>();
         for (String id : pathToBlobID.values()) {
-            blob = getBlob(id);
+            blob = getBlobByID(id);
             blobList.add(blob);
         }
         return blobList;
     }
 
-    private Blob getBlob(String id) {
+    public static Blob getBlobByID(String id) {
         String dirName = id.substring(0, 2);
         String fileName = id.substring(2);
         File BLOB_DIR = join(OBJECT_DIR, dirName);
@@ -75,11 +72,15 @@ public class Stage implements Serializable {
         return readObject(BLOB_FILE, Blob.class);
     }
 
-    public Map<String,String> getBlobMap() {
+    public Map<String, String> getBlobMap() {
         return this.pathToBlobID;
     }
 
     public boolean exists(String fileName) {
         return getBlobMap().containsKey(fileName);
+    }
+
+    public Blob getBlobByPath(String path) {
+        return getBlobByID(pathToBlobID.get(path));
     }
 }

@@ -210,18 +210,17 @@ public class Repository {
         File file = getFileFromCWD(fileName);
         String filePath = file.getPath();
         addStage = readAddStage();
-
         currCommmit = readCurrCommmit();
+
         if (addStage.exists(filePath)) {
             addStage.delete(filePath);
             addStage.saveAddStage();
         } else if (currCommmit.exists(filePath)) {
             removeStage = readRemoveStage();
-            removeStage.add(new Blob(file));
+            Blob removeBlob = getBlobFromCurrCommit(filePath, currCommmit);
+            removeStage.add(removeBlob);
             removeStage.saveRemoveStage();
-            if (file.exists()) {
-                deleteFile(file);
-            }
+            deleteFile(file);
         } else {
             System.out.println("No reason to remove the file.");
             System.exit(0);
@@ -233,6 +232,11 @@ public class Repository {
             return new Stage();
         }
         return readObject(REMOVESTAGE_FILE, Stage.class);
+    }
+
+    private static Blob getBlobFromCurrCommit(String filePath, Commit currCommmit) {
+        String blobID = currCommmit.getPathToBlobID().get(filePath);
+        return Stage.getBlobByID(blobID);
     }
 
     /* * log command funtion */

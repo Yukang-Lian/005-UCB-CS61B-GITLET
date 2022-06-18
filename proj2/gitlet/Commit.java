@@ -33,7 +33,7 @@ public class Commit implements Serializable {
      */
     private String message;
 
-    private Map<String, String> blobMap = new HashMap<>();
+    private Map<String, String> pathToBlobID= new HashMap<>();
 
     private List<String> parents;
 
@@ -48,9 +48,9 @@ public class Commit implements Serializable {
 
     /* TODO: fill in the rest of this class. */
 
-    public Commit(String message, Map<String, String> blobMap, List<String> parents) {
+    public Commit(String message, Map<String, String> pathToBlobID, List<String> parents) {
         this.message = message;
-        this.blobMap = blobMap;
+        this.pathToBlobID= pathToBlobID;
         this.parents = parents;
         this.currentTime = new Date();
         this.id = generateID();
@@ -61,7 +61,7 @@ public class Commit implements Serializable {
     public Commit() {
         this.currentTime = new Date(0);
         this.message = "initial commit";
-        this.blobMap = new HashMap<>();
+        this.pathToBlobID = new HashMap<>();
         this.parents = new ArrayList<>();
         this.id = generateID();
         this.commitDirName = generateDirName();
@@ -72,8 +72,8 @@ public class Commit implements Serializable {
         return message;
     }
 
-    public Map<String, String> getBlobMap() {
-        return blobMap;
+    public Map<String, String> getPathToBlobID() {
+        return pathToBlobID;
     }
 
     public List<String> getPrevCommit() {
@@ -94,7 +94,7 @@ public class Commit implements Serializable {
     }
 
     private String generateID() {
-        return Utils.sha1(generateTimeStamp(), message, parents.toString(), blobMap.toString());
+        return Utils.sha1(generateTimeStamp(), message, parents.toString(), pathToBlobID.toString());
     }
 
     private File generateDirName() {
@@ -115,6 +115,6 @@ public class Commit implements Serializable {
     }
 
     public boolean exists(String filePath) {
-        return blobMap.containsKey(filePath);
+        return pathToBlobID.containsKey(filePath);
     }
 }
