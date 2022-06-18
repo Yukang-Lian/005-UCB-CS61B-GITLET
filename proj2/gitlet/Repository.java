@@ -216,6 +216,10 @@ public class Repository {
             addStage.delete(filePath);
             addStage.saveAddStage();
         } else if (currCommmit.exists(filePath)) {
+            if (!file.exists()) {
+                System.out.println(fileName + " did not match any file.");
+                System.exit(0);
+            }
             removeStage = readRemoveStage();
             removeStage.add(new Blob(file));
             removeStage.saveRemoveStage();
