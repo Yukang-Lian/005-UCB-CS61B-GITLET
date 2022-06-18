@@ -288,7 +288,7 @@ public class Repository {
     }
 
     private static void printCommitMessage(Commit currCommmit) {
-        System.out.println(currCommmit.getMessage());
+        System.out.println(currCommmit.getMessage() + "\n");
     }
 
     private static Commit readCommitByID(String commitID) {
