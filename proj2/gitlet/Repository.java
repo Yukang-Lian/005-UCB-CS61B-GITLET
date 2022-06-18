@@ -182,7 +182,8 @@ public class Repository {
     }
 
 
-    private static void checkIfNewCommit(Map<String, String> addBlobMap, Map<String, String> removeBlobMap) {
+    private static void checkIfNewCommit(Map<String, String> addBlobMap,
+                                         Map<String, String> removeBlobMap) {
         if (addBlobMap.isEmpty() && removeBlobMap.isEmpty()) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
@@ -193,7 +194,9 @@ public class Repository {
         return currCommit.getPathToBlobID();
     }
 
-    private static Map<String, String> caculateBlobMap(Map<String, String> blobMap, Map<String, String> addBlobMap, Map<String, String> removeBlobMap) {
+    private static Map<String, String> caculateBlobMap(Map<String, String> blobMap,
+                                                       Map<String, String> addBlobMap,
+                                                       Map<String, String> removeBlobMap) {
         if (!addBlobMap.isEmpty()) {
             for (String path : addBlobMap.keySet()) {
                 blobMap.put(path, addBlobMap.get(path));
