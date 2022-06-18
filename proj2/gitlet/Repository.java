@@ -240,5 +240,62 @@ public class Repository {
     }
 
     /* * log command funtion */
+    public static void log() {
+        currCommmit = readCurrCommmit();
+        while (!currCommmit.getParentsCommit().isEmpty()) {
+            if (isMergeCommit(currCommmit)) {
+                printMergeCommit(currCommmit);
+            } else {
+                printCommit(currCommmit);
+            }
+            List<String> parentsCommitID = currCommmit.getParentsCommit();
+            currCommmit = readCommitByID(parentsCommitID.get(0));
+        }
+    }
 
+    private static boolean isMergeCommit(Commit currCommmit) {
+        return currCommmit.getParentsCommit().size() == 2;
+    }
+
+    private static void printCommit(Commit currCommmit) {
+        System.out.println("===");
+        printCommitID(currCommmit);
+        printCommitDate(currCommmit);
+        printCommitMessage(currCommmit);
+    }
+
+    private static void printMergeCommit(Commit currCommmit) {
+        System.out.println("===");
+        printCommitID(currCommmit);
+        printMergeMark(currCommmit);
+        printCommitDate(currCommmit);
+        printCommitMessage(currCommmit);
+    }
+
+    private static void printCommitID(Commit currCommmit) {
+        System.out.println("commit " + currCommmit.getID());
+    }
+
+    private static void printMergeMark(Commit currCommmit) {
+        List<String> ParentsCommitID = currCommmit.getParentsCommit();
+        String parent1 = ParentsCommitID.get(0);
+        String parent2 = ParentsCommitID.get(1);
+        System.out.println("Merge: " + parent1.substring(0, 7) + parent2.substring(0, 7));
+    }
+
+    private static void printCommitDate(Commit currCommmit) {
+        System.out.println("Date: " + currCommmit.getCurrentTime());
+    }
+
+    private static void printCommitMessage(Commit currCommmit) {
+        System.out.println(currCommmit.getMessage());
+    }
+
+    private static Commit readCommitByID(String commitID) {
+        String dirName = commitID.substring(0, 2);
+        String fileName = commitID.substring(2);
+        File CURR_COMMIT_DIR = join(OBJECT_DIR, dirName);
+        File CURR_COMMIT_FILE = join(CURR_COMMIT_DIR, fileName);
+        return readObject(CURR_COMMIT_FILE, Commit.class);
+    }
 }

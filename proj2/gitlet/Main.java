@@ -38,6 +38,8 @@ public class Main {
                 Repository.add(args[1]);
                 break;
             // TODO: FILL THE REST IN
+
+            /* * commit command */
             case "commit":
                 validArgs(args, 2);
 
@@ -45,12 +47,23 @@ public class Main {
 
                 Repository.commit(args[1]);
                 break;
+
+            /* * rm command */
             case "rm":
                 validArgs(args, 2);
 
                 Repository.checkIfInitialized();
 
                 Repository.rm(args[1]);
+                break;
+
+            /* * log command */
+            case "log":
+                validArgs(args, 1);
+
+                Repository.checkIfInitialized();
+
+                Repository.log();
                 break;
 
             default:
