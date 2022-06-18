@@ -51,10 +51,12 @@ public class Repository {
     public static final File HEADS_DIR = join(REFS_DIR, "heads");
     public static final File HEAD_FILE = join(GITLET_DIR, "HEAD");
     public static final File ADDSTAGE_FILE = join(GITLET_DIR, "add_stage");
+    public static final File REMOVESTAGE_FILE = join(GITLET_DIR, "remove_stage");
 
     public static Commit currCommmit;
 
     public static Stage addStage = new Stage();
+    public static Stage removeStage = new Stage();
 
 
     /* TODO: fill in the rest of this class. */
@@ -212,13 +214,23 @@ public class Repository {
         currCommmit = readCurrCommmit();
         if (addStage.exists(filePath)) {
             addStage.delete(filePath);
+            addStage.save();
         } else if (currCommmit.exists(filePath)) {
-            removeStage.add(file);
+            removeStage = readRemoveStage();
+            removeStage.add(new Blob(file));
+            removeStage.save();
             deleteFile(file);
         } else {
             System.out.println("No reason to remove the file.");
             System.exit(0);
         }
+    }
+
+    private static Stage readRemoveStage() {
+        if (!REMOVESTAGE_FILE.exists()) {
+            return new Stage();
+        }
+        return readObject(REMOVESTAGE_FILE, Stage.class);
     }
 
 }
