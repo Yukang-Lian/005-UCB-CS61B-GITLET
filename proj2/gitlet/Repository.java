@@ -109,7 +109,7 @@ public class Repository {
     }
 
     private static void storeBlob(Blob blob) {
-        addStage = readStage();
+        addStage = readAddStage();
         if (addStage.isNewBlob(blob)) {
             blob.save();
             if (addStage.isFilePathExists(blob.getPath())) {
@@ -120,7 +120,7 @@ public class Repository {
         }
     }
 
-    private static Stage readStage() {
+    private static Stage readAddStage() {
         if (!ADDSTAGE_FILE.exists()) {
             return new Stage();
         }
@@ -155,7 +155,7 @@ public class Repository {
 
     private static Map<String, String> findBlobMap() {
         Map<String, String> blobMap = new HashMap<>();
-        addStage = readStage();
+        addStage = readAddStage();
         List<Blob> blobList = addStage.getBlobList();
         for (Blob b : blobList) {
             blobMap.put(b.getPath(), b.getBlobID());
@@ -202,4 +202,23 @@ public class Repository {
     private static String readCurrBranch() {
         return readContentsAsString(HEAD_FILE);
     }
+
+    /* * rm command funtion */
+    public static void rm(String fileName) {
+        File file = getFileFromCWD(fileName);
+        String filePath = file.getPath();
+        addStage = readAddStage();
+
+        currCommmit = readCurrCommmit();
+        if (addStage.exists(filePath)) {
+            addStage.delete(filePath);
+        } else if (currCommmit.exists(filePath)) {
+            removeStage.add(file);
+            deleteFile(file);
+        } else {
+            System.out.println("No reason to remove the file.");
+            System.exit(0);
+        }
+    }
+
 }

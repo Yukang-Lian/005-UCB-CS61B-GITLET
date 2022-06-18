@@ -21,4 +21,16 @@ public class MyUtiles {
         }
     }
 
+    public static boolean deleteFile(File file) {
+        if (!file.isDirectory()) {
+            if (file.exists()) {
+                return file.delete();
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
 }

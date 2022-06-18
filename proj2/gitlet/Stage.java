@@ -3,45 +3,45 @@ package gitlet;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static gitlet.Repository.OBJECT_DIR;
 import static gitlet.Utils.*;
 
 public class Stage implements Serializable {
 
-    private List<String> blobIDList = new ArrayList<>();
-    private List<String> filePath = new ArrayList<>();
 
-    public List<String> getBIL(){
-        return blobIDList;
-    }
+    private Map<String, String> pathToBlobID = new HashMap<>();
+
+
 
     public boolean isNewBlob(Blob blob) {
-        if (!blobIDList.contains(blob.getBlobID())) {
+        if (!pathToBlobID.containsValue((blob.getBlobID()))) {
             return true;
         }
         return false;
     }
 
     public boolean isFilePathExists(String path) {
-        if (filePath.contains(path)) {
+        if (pathToBlobID.containsKey(path)) {
             return true;
         }
         return false;
     }
 
     public void delete(Blob blob) {
-        blobIDList.remove(blob.getBlobID());
-        filePath.remove(blob.getPath());
+        pathToBlobID.remove(blob.getPath());
+    }
+
+    public void delete(String path) {
+       pathToBlobID.remove(path);
     }
 
     public void add(Blob blob) {
-        if (!blobIDList.contains(blob.getBlobID())) {
-            blobIDList.add(blob.getBlobID());
-        }
-        if (!filePath.contains(blob.getPath())) {
-            filePath.add(blob.getPath());
+        if (!pathToBlobID.containsKey(blob.getPath())) {
+            pathToBlobID.put(blob.getPath(), blob.getBlobID());
         }
     }
 
@@ -50,14 +50,13 @@ public class Stage implements Serializable {
     }
 
     public void clear() {
-        blobIDList.clear();
-        filePath.clear();
+        pathToBlobID.clear();
     }
 
     public List<Blob> getBlobList() {
         Blob blob;
         List<Blob> blobList = new ArrayList<>();
-        for (String id : blobIDList) {
+        for (String id : pathToBlobID.values()) {
             blob = getBlob(id);
             blobList.add(blob);
         }
@@ -70,5 +69,13 @@ public class Stage implements Serializable {
         File BLOB_DIR = join(OBJECT_DIR, dirName);
         File BLOB_FILE = join(BLOB_DIR, fileName);
         return readObject(BLOB_FILE, Blob.class);
+    }
+
+    public Map<String,String> getBlobMap() {
+        return this.pathToBlobID;
+    }
+
+    public boolean exists(String fileName) {
+        return getBlobMap().containsKey(fileName);
     }
 }

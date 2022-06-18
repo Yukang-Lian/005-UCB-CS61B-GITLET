@@ -113,4 +113,8 @@ public class Commit implements Serializable {
         }
         writeObject(commitFileName, this);
     }
+
+    public boolean exists(String filePath) {
+        return blobMap.containsKey(filePath);
+    }
 }
