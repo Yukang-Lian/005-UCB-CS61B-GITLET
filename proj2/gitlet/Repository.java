@@ -215,11 +215,13 @@ public class Repository {
         if (addStage.exists(filePath)) {
             addStage.delete(filePath);
             addStage.saveAddStage();
-        } else if (currCommmit.exists(filePath) && file.exists()) {
+        } else if (currCommmit.exists(filePath)) {
             removeStage = readRemoveStage();
             removeStage.add(new Blob(file));
             removeStage.saveRemoveStage();
-            deleteFile(file);
+            if (file.exists()) {
+                deleteFile(file);
+            }
         } else {
             System.out.println("No reason to remove the file.");
             System.exit(0);
