@@ -600,7 +600,7 @@ public class Repository {
         writeContents(HEAD_FILE, headName);
     }
 
-    /* * status command funtion */
+    /* * branch command funtion */
     public static void branch(String branchName) {
         checkIfNewBranch(branchName);
         addNewBranchToHeads(branchName);
@@ -620,7 +620,7 @@ public class Repository {
         writeContents(newBranchFile, currCommit.getID());
     }
 
-    /* * status command funtion */
+    /* * rm_branch command funtion */
     public static void rm_branch(String branchName) {
         checkIfCurrentBranch(branchName);
         checkIfBranchExists(branchName);
@@ -645,7 +645,9 @@ public class Repository {
 
     private static void removeBranch(String branchName) {
         File fileName = join(HEADS_DIR, branchName);
-        restrictedDelete(fileName);
+        if (!fileName.isDirectory()) {
+            fileName.delete();
+        }
     }
 
 
