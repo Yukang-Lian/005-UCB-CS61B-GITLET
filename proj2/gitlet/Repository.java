@@ -145,6 +145,8 @@ public class Repository {
         newCommit.save();
         addStage.clear();
         addStage.saveAddStage();
+        removeStage.clear();
+        removeStage.saveRemoveStage();
         saveHeads(newCommit);
     }
 

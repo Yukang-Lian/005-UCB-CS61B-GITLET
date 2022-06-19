@@ -44,8 +44,8 @@ public class Blob implements Serializable {
         return blobSaveFileName;
     }
 
-    public File getFileName(){
-        return fileName;
+    public String getFileName(){
+        return fileName.getName();
     }
 
     private byte[] readFile() {
