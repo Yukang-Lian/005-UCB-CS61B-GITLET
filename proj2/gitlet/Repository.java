@@ -579,7 +579,7 @@ public class Repository {
         }
         for (String fileName : onlyNewCommitTracked) {
             File file = join(CWD, fileName);
-            if (!file.exists()) {
+            if (file.exists()) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
