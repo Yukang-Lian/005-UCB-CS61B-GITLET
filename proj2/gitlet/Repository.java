@@ -343,6 +343,9 @@ public class Repository {
 
     private static Commit readCommitByID(String commitID) {
         File CURR_COMMIT_FILE = join(OBJECT_DIR, commitID);
+        if (!CURR_COMMIT_FILE.exists()) {
+            return null;
+        }
         return readObject(CURR_COMMIT_FILE, Commit.class);
     }
 
