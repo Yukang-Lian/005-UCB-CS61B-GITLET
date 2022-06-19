@@ -485,15 +485,11 @@ public class Repository {
     public static void checkoutBranch(String branchName) {
         checkIfCheckedCurrBranch(branchName);
         checkIfCheckedBranchExists(branchName);
+
         currCommit = readCurrCommmit();
         Commit newCommit = readCommitByBranchName(branchName);
-        List<String> onlyCurrCommitTracked = findOnlyCurrCommitTracked(newCommit);
-        List<String> bothCommitTracked = findBothCommitTracked(newCommit);
-        List<String> onlyNewCommitTracked = findOnlyNewCommitTracked(newCommit);
-        deleteFiles(onlyCurrCommitTracked);
-        overwriteFiles(bothCommitTracked, newCommit);
-        writeFiles(onlyNewCommitTracked, newCommit);
-        clearAllStage();
+        changeCommitTo(newCommit);
+
         changeBranchTo(branchName);
     }
 
@@ -521,6 +517,16 @@ public class Repository {
         File branchFileName = join(HEADS_DIR, branchName);
         String newCommitID = readContentsAsString(branchFileName);
         return readCommitByID(newCommitID);
+    }
+
+    private static void changeCommitTo(Commit newCommit) {
+        List<String> onlyCurrCommitTracked = findOnlyCurrCommitTracked(newCommit);
+        List<String> bothCommitTracked = findBothCommitTracked(newCommit);
+        List<String> onlyNewCommitTracked = findOnlyNewCommitTracked(newCommit);
+        deleteFiles(onlyCurrCommitTracked);
+        overwriteFiles(bothCommitTracked, newCommit);
+        writeFiles(onlyNewCommitTracked, newCommit);
+        clearAllStage();
     }
 
     private static List<String> findOnlyCurrCommitTracked(Commit newCommit) {
@@ -650,7 +656,26 @@ public class Repository {
         }
     }
 
+    /* * reset command funtion */
+    public static void reset(String commitID) {
+        checkIfCommitIDExists(commitID);
 
+        currCommit = readCurrCommmit();
+        Commit newCommit = readCommitByID(commitID);
+        changeCommitTo(newCommit);
+
+        currBranch = readCurrBranch();
+        File branchFile = join(HEADS_DIR, currBranch);
+        writeContents(branchFile, commitID);
+    }
+
+    private static void checkIfCommitIDExists(String commitID) {
+        Commit commit = readCommitByID(commitID);
+        if (commit == null) {
+            System.out.println("No commit with that id exists.");
+            System.exit(0);
+        }
+    }
 }
 
 

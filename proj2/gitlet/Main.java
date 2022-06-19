@@ -1,5 +1,7 @@
 package gitlet;
 
+import java.sql.ResultSet;
+
 /**
  * Driver class for Gitlet, a subset of the Git version-control system.
  * <p>
@@ -41,11 +43,6 @@ public class Main {
 
             /* * commit command */
             case "commit":
-
-//                if (args.length == 1) {
-//                    System.out.println("Please enter a commit message.");
-//                    System.exit(0);
-//                }
                 validArgs(args, 2);
 
                 Repository.checkIfInitialized();
@@ -148,6 +145,14 @@ public class Main {
                 Repository.checkIfInitialized();
 
                 Repository.rm_branch(args[1]);
+                break;
+
+            case "reset":
+                validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+
+                Repository.reset(args[1]);
                 break;
 
             default:
