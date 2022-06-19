@@ -111,19 +111,23 @@ public class Repository {
     }
 
     private static void storeBlob(Blob blob) {
+        currCommit = readCurrCommmit();
         addStage = readAddStage();
         removeStage = readRemoveStage();
-        if (addStage.isNewBlob(blob)) {
-            if (removeStage.isNewBlob(blob)) {
-                blob.save();
-                if (addStage.isFilePathExists(blob.getPath())) {
-                    addStage.delete(blob);
+        if (!currCommit.getPathToBlobID().containsValue(blob.getBlobID()) ||
+                !removeStage.isNewBlob(blob)) {
+            if (addStage.isNewBlob(blob)) {
+                if (removeStage.isNewBlob(blob)) {
+                    blob.save();
+                    if (addStage.isFilePathExists(blob.getPath())) {
+                        addStage.delete(blob);
+                    }
+                    addStage.add(blob);
+                    addStage.saveAddStage();
+                } else {
+                    removeStage.delete(blob);
+                    removeStage.saveRemoveStage();
                 }
-                addStage.add(blob);
-                addStage.saveAddStage();
-            } else {
-                removeStage.delete(blob);
-                removeStage.saveRemoveStage();
             }
         }
     }
