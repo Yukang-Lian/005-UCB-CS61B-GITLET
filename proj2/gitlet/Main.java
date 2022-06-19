@@ -84,6 +84,16 @@ public class Main {
                 Repository.find(args[1]);
                 break;
 
+            /* * status command */
+            case "status":
+                validArgs(args, 1);
+
+                Repository.checkIfInitialized();
+
+                Repository.status();
+                break;
+
+
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);

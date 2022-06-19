@@ -57,7 +57,7 @@ public class Repository {
 
     public static Stage addStage = new Stage();
     public static Stage removeStage = new Stage();
-
+    public static String currBranch;
 
     /* TODO: fill in the rest of this class. */
 
@@ -375,4 +375,72 @@ public class Repository {
             }
         }
     }
+
+    /* * status command funtion */
+    public static void status() {
+        printBranches();
+        printStagedFile();
+        printRemovedFiles();
+        printModifiedNotStagedFile();
+        printUntrackedFiles();
+    }
+
+    private static void printBranches() {
+        List<String> branchList = plainFilenamesIn(HEADS_DIR);
+        currBranch = readCurrBranch();
+        System.out.println("=== Branches ===");
+        System.out.println("*" + currBranch);
+        if (branchList.size() > 1) {
+            for (String branch : branchList) {
+                if (!branch.equals(currBranch)) {
+                    System.out.println(branch);
+                }
+            }
+        }
+        System.out.println();
+    }
+
+    private static void printStagedFile() {
+        System.out.println("=== Staged Files ===");
+        addStage = readAddStage();
+        for (Blob b : addStage.getBlobList()) {
+            System.out.println(b.getBlobFileName());
+        }
+        System.out.println();
+    }
+
+    private static void printRemovedFiles() {
+        System.out.println("=== Removed Files ===");
+        removeStage = readRemoveStage();
+        for (Blob b : removeStage.getBlobList()) {
+            System.out.println(b.getBlobFileName());
+        }
+        System.out.println();
+    }
+
+    private static void printModifiedNotStagedFile() {
+        System.out.println("=== Modifications Not Staged For Commit ===");
+        System.out.println();
+    }
+
+    private static void printUntrackedFiles() {
+        System.out.println("=== Untracked Filesl ===");
+        System.out.println();
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

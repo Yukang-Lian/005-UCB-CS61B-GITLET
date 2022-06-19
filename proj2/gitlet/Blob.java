@@ -40,6 +40,10 @@ public class Blob implements Serializable {
         return filePath;
     }
 
+    public File getBlobFileName() {
+        return blobFileName;
+    }
+
     private byte[] readFile() {
         return readContents(fileName);
     }
