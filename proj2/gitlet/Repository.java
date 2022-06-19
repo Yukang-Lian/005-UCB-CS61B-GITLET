@@ -1,7 +1,6 @@
 package gitlet;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
@@ -484,7 +483,116 @@ public class Repository {
 
     /* * case 3 */
     public static void checkoutBranch(String branchName) {
+        checkIfCurrBranch(branchName);
+        checkIfBranchExists(branchName);
+        currCommit = readCurrCommmit();
+        Commit newCommit = readCommitByBranchName(branchName);
+        List<String> onlyCurrCommitTracked = findOnlyCurrCommitTracked(newCommit);
+        List<String> bothCommitTracked = findBothCommitTracked(newCommit);
+        List<String> onlyNewCommitTracked = findOnlyNewCommitTracked(newCommit);
+        deleteFiles(onlyCurrCommitTracked);
+        overwriteFiles(bothCommitTracked, newCommit);
+        writeFiles(onlyNewCommitTracked, newCommit);
+        clearAllStage();
+    }
 
+    private static void checkIfBranchExists(String branchName) {
+        List<String> allBranch = readAllBranch();
+        if (!allBranch.contains(branchName)) {
+            System.out.println("No such branch exists.");
+            System.exit(0);
+        }
+    }
+
+    private static void checkIfCurrBranch(String branchName) {
+        currBranch = readCurrBranch();
+        if (branchName.equals(currBranch)) {
+            System.out.println("No need to checkout the current branch.");
+            System.exit(0);
+        }
+    }
+
+    private static List<String> readAllBranch() {
+        return plainFilenamesIn(HEADS_DIR);
+    }
+
+    private static Commit readCommitByBranchName(String branchName) {
+        File branchFileName = join(HEADS_DIR, branchName);
+        String newCommitID = readContentsAsString(branchFileName);
+        return readCommitByID(newCommitID);
+    }
+
+    private static List<String> findOnlyCurrCommitTracked(Commit newCommit) {
+        List<String> newCommitFiles = newCommit.getFileNames();
+        List<String> onlyCurrCommitTracked = currCommit.getFileNames();
+        for (String s : newCommitFiles) {
+            onlyCurrCommitTracked.remove(s);
+        }
+        return onlyCurrCommitTracked;
+    }
+
+    private static List<String> findBothCommitTracked(Commit newCommit) {
+        List<String> newCommitFiles = newCommit.getFileNames();
+        List<String> currCommitFiles = currCommit.getFileNames();
+        List<String> bothCommitTracked = new ArrayList<>();
+        for (String s : newCommitFiles) {
+            if (currCommitFiles.contains(s)) {
+                bothCommitTracked.add(s);
+            }
+        }
+        return bothCommitTracked;
+    }
+
+    private static List<String> findOnlyNewCommitTracked(Commit newCommit) {
+        List<String> currCommitFiles = currCommit.getFileNames();
+        List<String> onlyNewCommitTracked = newCommit.getFileNames();
+        for (String s : currCommitFiles) {
+            onlyNewCommitTracked.remove(s);
+        }
+        return onlyNewCommitTracked;
+    }
+
+    private static void deleteFiles(List<String> onlyCurrCommitTracked) {
+        if (onlyCurrCommitTracked.isEmpty()) {
+            return;
+        }
+        for (String fileName : onlyCurrCommitTracked) {
+            File file = join(CWD, fileName);
+            restrictedDelete(file);
+        }
+    }
+
+    private static void overwriteFiles(List<String> bothCommitTracked, Commit newCommit) {
+        if (bothCommitTracked.isEmpty()) {
+            return;
+        }
+        for (String fileName : bothCommitTracked) {
+            Blob blob = newCommit.getBlobByFileName(fileName);
+            writeBlobToCWD(blob);
+        }
+    }
+
+    private static void writeFiles(List<String> onlyNewCommitTracked, Commit newCommit) {
+        if (onlyNewCommitTracked.isEmpty()) {
+            return;
+        }
+        for (String fileName : onlyNewCommitTracked) {
+            File file = join(CWD, fileName);
+            if (!file.exists()) {
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
+        }
+        overwriteFiles(onlyNewCommitTracked, newCommit);
+    }
+
+    private static void clearAllStage() {
+        addStage = readAddStage();
+        addStage.clear();
+        addStage.saveAddStage();
+        removeStage = readRemoveStage();
+        removeStage.clear();
+        removeStage.saveRemoveStage();
     }
 }
 
