@@ -112,13 +112,19 @@ public class Repository {
 
     private static void storeBlob(Blob blob) {
         addStage = readAddStage();
+        removeStage = readRemoveStage();
         if (addStage.isNewBlob(blob)) {
-            blob.save();
-            if (addStage.isFilePathExists(blob.getPath())) {
-                addStage.delete(blob);
+            if (removeStage.isNewBlob(blob)) {
+                blob.save();
+                if (addStage.isFilePathExists(blob.getPath())) {
+                    addStage.delete(blob);
+                }
+                addStage.add(blob);
+                addStage.saveAddStage();
+            } else {
+                removeStage.delete(blob);
+                removeStage.saveRemoveStage();
             }
-            addStage.add(blob);
-            addStage.saveAddStage();
         }
     }
 
