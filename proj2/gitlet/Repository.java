@@ -404,7 +404,7 @@ public class Repository {
         System.out.println("=== Staged Files ===");
         addStage = readAddStage();
         for (Blob b : addStage.getBlobList()) {
-            System.out.println(b.getBlobFileName());
+            System.out.println(b.getFileName());
         }
         System.out.println();
     }
@@ -413,7 +413,7 @@ public class Repository {
         System.out.println("=== Removed Files ===");
         removeStage = readRemoveStage();
         for (Blob b : removeStage.getBlobList()) {
-            System.out.println(b.getBlobFileName());
+            System.out.println(b.getFileName());
         }
         System.out.println();
     }
@@ -424,7 +424,7 @@ public class Repository {
     }
 
     private static void printUntrackedFiles() {
-        System.out.println("=== Untracked Filesl ===");
+        System.out.println("=== Untracked Files ===");
         System.out.println();
     }
 }
