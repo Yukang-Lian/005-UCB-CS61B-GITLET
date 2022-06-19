@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static gitlet.MyUtiles.mkdir;
+import static gitlet.Repository.CWD;
 import static gitlet.Repository.OBJECT_DIR;
 import static gitlet.Stage.getBlobByID;
 import static gitlet.Utils.join;
@@ -123,18 +124,27 @@ public class Commit implements Serializable {
 
     public List<String> getFileNames() {
         List<String> fileName = new ArrayList<>();
-        if (!pathToBlobID.isEmpty()) {
-            for (String id : pathToBlobID.values()) {
-                fileName.add(join(OBJECT_DIR, id).getName());
-            }
+        List<Blob> blobList = getBlobList();
+        for (Blob b : blobList) {
+            fileName.add(b.getFileName());
         }
         return fileName;
     }
 
+    private List<Blob> getBlobList() {
+        Blob blob;
+        List<Blob> blobList = new ArrayList<>();
+        for (String id : pathToBlobID.values()) {
+            blob = getBlobByID(id);
+            blobList.add(blob);
+        }
+        return blobList;
+    }
+
     public Blob getBlobByFileName(String fileName) {
-        File file = join(OBJECT_DIR, fileName);
+        File file = join(CWD, fileName);
         String path = file.getPath();
-        String blobID=pathToBlobID.get(path);
+        String blobID = pathToBlobID.get(path);
         return getBlobByID(blobID);
     }
 }

@@ -457,9 +457,8 @@ public class Repository {
     }
 
     private static void writeBlobToCWD(Blob blob) {
-        File blobSaveFileName = blob.getBlobSaveFileName();
-        File fileName = readObject(blobSaveFileName, File.class);
-        byte[] bytes = readObject(blobSaveFileName, byte[].class);
+        File fileName = join(CWD, blob.getFileName());
+        byte[] bytes = blob.getBytes();
         writeContents(fileName, new String(bytes, StandardCharsets.UTF_8));
     }
 
