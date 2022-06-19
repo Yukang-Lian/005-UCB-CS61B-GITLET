@@ -341,11 +341,21 @@ public class Repository {
     }
 
     private static Commit readCommitByID(String commitID) {
-        File CURR_COMMIT_FILE = join(OBJECT_DIR, commitID);
-        if (!CURR_COMMIT_FILE.exists()) {
+        if (commitID.length() == 40) {
+            File CURR_COMMIT_FILE = join(OBJECT_DIR, commitID);
+            if (!CURR_COMMIT_FILE.exists()) {
+                return null;
+            }
+            return readObject(CURR_COMMIT_FILE, Commit.class);
+        } else {
+            List<String> objectID = plainFilenamesIn(OBJECT_DIR);
+            for (String o : objectID) {
+                if (commitID.equals(o.substring(0, commitID.length()))) {
+                    return readObject(join(OBJECT_DIR, o), Commit.class);
+                }
+            }
             return null;
         }
-        return readObject(CURR_COMMIT_FILE, Commit.class);
     }
 
     /* * global-log command funtion */
