@@ -93,6 +93,41 @@ public class Main {
                 Repository.status();
                 break;
 
+            /* * status command */
+            case "checkout":
+
+                Repository.checkIfInitialized();
+
+                Repository repository = new Repository();
+                switch (args.length) {
+                    case 3:
+                        if (!args[1].equals("--")) {
+                            System.out.println("Incorrect operands.");
+                            System.exit(0);
+                        }
+                        /* * checkout -- [file name] */
+                        repository.checkout(args[2]);
+                        break;
+
+                    case 4:
+                        if (!args[2].equals("--")) {
+                            System.out.println("Incorrect operands.");
+                            System.exit(0);
+                        }
+                        /* * checkout [commit id] -- [file name] */
+                        repository.checkout(args[1], args[3]);
+                        break;
+
+                    case 2:
+                        /* * checkout [branch name] */
+                        repository.checkoutBranch(args[1]);
+                        break;
+
+                    default:
+                        System.out.println("Incorrect operands.");
+                        System.exit(0);
+                }
+                break;
 
             default:
                 System.out.println("No command with that name exists.");

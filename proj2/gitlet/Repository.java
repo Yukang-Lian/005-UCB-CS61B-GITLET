@@ -1,6 +1,8 @@
 package gitlet;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -438,6 +440,49 @@ public class Repository {
     private static void printUntrackedFiles() {
         System.out.println("=== Untracked Files ===");
         System.out.println();
+    }
+
+    /* * checkout command funtion */
+    /* * case 1 */
+    public static void checkout(String fileName) {
+        Commit currCommmit = readCurrCommmit();
+        List<String> fileNames = currCommmit.getFileNames();
+        if (fileNames.contains(fileName)) {
+            Blob blob = currCommmit.getBlobByFileName(fileName);
+            writeBlobToCWD(blob);
+        } else {
+            System.out.println("File does not exist in that commit.");
+            System.exit(0);
+        }
+    }
+
+    private static void writeBlobToCWD(Blob blob) {
+        File blobSaveFileName = blob.getBlobSaveFileName();
+        File fileName = readObject(blobSaveFileName, File.class);
+        byte[] bytes = readObject(blobSaveFileName, byte[].class);
+        writeContents(fileName, new String(bytes, StandardCharsets.UTF_8));
+    }
+
+    /* * case 2 */
+    public static void checkout(String commitID, String fileName) {
+        Commit commit = readCommitByID(commitID);
+        if (commit == null) {
+            System.out.println("No commit with that id exists.");
+            System.exit(0);
+        }
+        List<String> fileNames = commit.getFileNames();
+        if (fileNames.contains(fileName)) {
+            Blob blob = commit.getBlobByFileName(fileName);
+            writeBlobToCWD(blob);
+        } else {
+            System.out.println("File does not exist in that commit.");
+            System.exit(0);
+        }
+    }
+
+    /* * case 3 */
+    public static void checkoutBranch(String branchName) {
+
     }
 }
 

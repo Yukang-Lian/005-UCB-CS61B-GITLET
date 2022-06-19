@@ -10,6 +10,7 @@ import java.util.*;
 
 import static gitlet.MyUtiles.mkdir;
 import static gitlet.Repository.OBJECT_DIR;
+import static gitlet.Stage.getBlobByID;
 import static gitlet.Utils.join;
 import static gitlet.Utils.writeObject;
 
@@ -42,7 +43,7 @@ public class Commit implements Serializable {
 
     private String id;
 
-    private File commitFileName;
+    private File commitSaveFileName;
 
     private String timeStamp;
 
@@ -56,7 +57,7 @@ public class Commit implements Serializable {
         this.currentTime = new Date();
         this.timeStamp = dateToTimeStamp(this.currentTime);
         this.id = generateID();
-        this.commitFileName = generateFileName();
+        this.commitSaveFileName = generateFileName();
     }
 
     public Commit() {
@@ -66,7 +67,7 @@ public class Commit implements Serializable {
         this.pathToBlobID = new HashMap<>();
         this.parents = new ArrayList<>();
         this.id = generateID();
-        this.commitFileName = generateFileName();
+        this.commitSaveFileName = generateFileName();
     }
 
     private static String dateToTimeStamp(Date date) {
@@ -109,14 +110,31 @@ public class Commit implements Serializable {
 
 
     private File generateFileName() {
-       return join(OBJECT_DIR,id);
+        return join(OBJECT_DIR, id);
     }
 
     public void save() {
-        writeObject(commitFileName, this);
+        writeObject(commitSaveFileName, this);
     }
 
     public boolean exists(String filePath) {
         return pathToBlobID.containsKey(filePath);
+    }
+
+    public List<String> getFileNames() {
+        List<String> fileName = new ArrayList<>();
+        if (!pathToBlobID.isEmpty()) {
+            for (String id : pathToBlobID.values()) {
+                fileName.add(join(OBJECT_DIR, id).getName());
+            }
+        }
+        return fileName;
+    }
+
+    public Blob getBlobByFileName(String fileName) {
+        File file = join(OBJECT_DIR, fileName);
+        String path = file.getPath();
+        String blobID=pathToBlobID.get(path);
+        return getBlobByID(blobID);
     }
 }
