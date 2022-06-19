@@ -483,8 +483,8 @@ public class Repository {
 
     /* * case 3 */
     public static void checkoutBranch(String branchName) {
-        checkIfCurrBranch(branchName);
-        checkIfBranchExists(branchName);
+        checkIfCheckedCurrBranch(branchName);
+        checkIfCheckedBranchExists(branchName);
         currCommit = readCurrCommmit();
         Commit newCommit = readCommitByBranchName(branchName);
         List<String> onlyCurrCommitTracked = findOnlyCurrCommitTracked(newCommit);
@@ -497,7 +497,7 @@ public class Repository {
         changeBranchTo(branchName);
     }
 
-    private static void checkIfBranchExists(String branchName) {
+    private static void checkIfCheckedBranchExists(String branchName) {
         List<String> allBranch = readAllBranch();
         if (!allBranch.contains(branchName)) {
             System.out.println("No such branch exists.");
@@ -505,7 +505,7 @@ public class Repository {
         }
     }
 
-    private static void checkIfCurrBranch(String branchName) {
+    private static void checkIfCheckedCurrBranch(String branchName) {
         currBranch = readCurrBranch();
         if (branchName.equals(currBranch)) {
             System.out.println("No need to checkout the current branch.");
@@ -619,6 +619,36 @@ public class Repository {
         currCommit = readCurrCommmit();
         writeContents(newBranchFile, currCommit.getID());
     }
+
+    /* * status command funtion */
+    public static void rm_branch(String branchName) {
+        checkIfCurrentBranch(branchName);
+        checkIfBranchExists(branchName);
+        removeBranch(branchName);
+    }
+
+    private static void checkIfCurrentBranch(String branchName) {
+        currBranch = readCurrBranch();
+        if (currBranch.equals(branchName)) {
+            System.out.println("Cannot remove the current branch.");
+            System.exit(0);
+        }
+    }
+
+    private static void checkIfBranchExists(String branchName) {
+        List<String> allBranch = readAllBranch();
+        if (!allBranch.contains(branchName)) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+    }
+
+    private static void removeBranch(String branchName) {
+        File fileName = join(HEADS_DIR, branchName);
+        restrictedDelete(fileName);
+    }
+
+
 }
 
 

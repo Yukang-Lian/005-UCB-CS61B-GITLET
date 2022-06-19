@@ -41,6 +41,11 @@ public class Main {
 
             /* * commit command */
             case "commit":
+
+//                if (args.length == 1) {
+//                    System.out.println("Please enter a commit message.");
+//                    System.exit(0);
+//                }
                 validArgs(args, 2);
 
                 Repository.checkIfInitialized();
@@ -128,12 +133,21 @@ public class Main {
                         System.exit(0);
                 }
                 break;
+
             case "branch":
                 validArgs(args, 2);
 
                 Repository.checkIfInitialized();
 
                 Repository.branch(args[1]);
+                break;
+
+            case "rm-branch":
+                validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+
+                Repository.rm_branch(args[1]);
                 break;
 
             default:
