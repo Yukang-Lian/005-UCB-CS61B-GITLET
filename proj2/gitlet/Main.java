@@ -128,6 +128,13 @@ public class Main {
                         System.exit(0);
                 }
                 break;
+            case "branch":
+                validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+
+                Repository.branch(args[1]);
+                break;
 
             default:
                 System.out.println("No command with that name exists.");

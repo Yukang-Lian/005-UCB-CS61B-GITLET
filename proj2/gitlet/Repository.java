@@ -494,6 +494,7 @@ public class Repository {
         overwriteFiles(bothCommitTracked, newCommit);
         writeFiles(onlyNewCommitTracked, newCommit);
         clearAllStage();
+        changeBranchTo(branchName);
     }
 
     private static void checkIfBranchExists(String branchName) {
@@ -594,9 +595,31 @@ public class Repository {
         removeStage.clear();
         removeStage.saveRemoveStage();
     }
+
+    private static void changeBranchTo(String headName) {
+        writeContents(HEAD_FILE, headName);
+    }
+
+    /* * status command funtion */
+    public static void branch(String branchName) {
+        checkIfNewBranch(branchName);
+        addNewBranchToHeads(branchName);
+    }
+
+    private static void checkIfNewBranch(String branchName) {
+        List<String> allBranches = plainFilenamesIn(HEADS_DIR);
+        if (allBranches.contains(branchName)) {
+            System.out.println("A branch with that name already exists.");
+            System.exit(0);
+        }
+    }
+
+    private static void addNewBranchToHeads(String branchName) {
+        File newBranchFile = join(HEADS_DIR, branchName);
+        currCommit = readCurrCommmit();
+        writeContents(newBranchFile, currCommit.getID());
+    }
 }
-
-
 
 
 
