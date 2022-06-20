@@ -762,8 +762,57 @@ public class Repository {
     }
 
     private static Commit mergeFilesToNewCommit(Commit splitPoint, Commit newCommit, Commit mergeCommit) {
+        mergeFiles(splitPoint, newCommit, mergeCommit);
+        return caculateMergedCommit();
+    }
+
+    private static void mergeFiles(Commit splitPoint, Commit newCommit, Commit mergeCommit) {
+        List<String> allFiles = caculateAllFiles(splitPoint, newCommit, mergeCommit);
+
+        /* * case 3-1: deal conflict */
+        checkIfConflict(allFiles, splitPoint, newCommit, mergeCommit);
+
+        /*
+         * case 1 5 6: write mergeCommit files into newCommit
+         * case 1: overwrite files
+         * case 5: write files
+         * case 6: delete files
+         */
+        List<String> overwriteFiles = caculateOverwriteFiles(allFiles, splitPoint, newCommit, mergeCommit);
+        List<String> writeFiles = caculateWriteFiles(allFiles, splitPoint, newCommit, mergeCommit);
+        List<String> deleteFiles = caculateDeleteFiles(allFiles, splitPoint, newCommit, mergeCommit);
+        overwriteFiles(overwriteFiles, mergeCommit);
+        writeFiles(writeFiles, mergeCommit);
+        deleteFiles(deleteFiles);
+
+        /* * case 2 4 7 3-1: do nothing */
+        //nothing to do here
+    }
+
+    private static List<String> caculateAllFiles(Commit splitPoint, Commit newCommit, Commit mergeCommit) {
+
+    }
+
+    private static void checkIfConflict(List<String> allFiles, Commit splitPoint,Commit newCommit,Commit mergeCommit){
         
     }
+
+    private static List<String> caculateOverwriteFiles(List<String> allFiles, Commit splitPoint,Commit newCommit,Commit mergeCommit) {
+
+    }
+
+    private static List<String> caculateWriteFiles(List<String> allFiles, Commit splitPoint,Commit newCommit,Commit mergeCommit){
+
+    }
+
+    private static List<String> caculateDeleteFiles(List<String> allFiles, Commit splitPoint,Commit newCommit,Commit mergeCommit){
+
+    }
+
+    private static Commit caculateMergedCommit() {
+        return new Commit();
+    }
+
 }
 
 
