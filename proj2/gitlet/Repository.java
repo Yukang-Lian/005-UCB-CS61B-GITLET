@@ -331,10 +331,10 @@ public class Repository {
     }
 
     private static void printMergeMark(Commit currCommmit) {
-        List<String> ParentsCommitID = currCommmit.getParentsCommitID();
-        String parent1 = ParentsCommitID.get(0);
-        String parent2 = ParentsCommitID.get(1);
-        System.out.println("Merge: " + parent1.substring(0, 7) + parent2.substring(0, 7));
+        List<String> parentsCommitID = currCommmit.getParentsCommitID();
+        String parent1 = parentsCommitID.get(0);
+        String parent2 = parentsCommitID.get(1);
+        System.out.println("Merge: " + parent1.substring(0, 7) + " " + parent2.substring(0, 7));
     }
 
     private static void printCommitDate(Commit currCommmit) {
@@ -709,7 +709,9 @@ public class Repository {
         Map<String, String> currCommitBlobs = currCommit.getPathToBlobID();
 
         String message = "Merged " + mergeBranch + " into " + currBranch + ".";
-        List<String> parents = new ArrayList<>(List.of(currBranch, mergeBranch));
+        String currBranchCommitID = readCommitByBranchName(currBranch).getID();
+        String mergeBranchCommitID = readCommitByBranchName(mergeBranch).getID();
+        List<String> parents = new ArrayList<>(List.of(currBranchCommitID, mergeBranchCommitID));
         Commit newCommit = new Commit(message, currCommitBlobs, parents);
 
         Commit mergedCommit = mergeFilesToNewCommit(splitPoint, newCommit, mergeCommit);
@@ -776,23 +778,23 @@ public class Repository {
          * case 6: delete files
          */
         //todo:
-        System.out.println("allfile");
-        System.out.println(allFiles);
-        System.out.println("splitfile");
-        System.out.println(splitPoint.getBlobIDList());
-        System.out.println("masterlfile");
-        System.out.println(newCommit.getBlobIDList());
-        System.out.println("otherfile");
-        System.out.println(mergeCommit.getBlobIDList());
+//        System.out.println("allfile");
+//        System.out.println(allFiles);
+//        System.out.println("splitfile");
+//        System.out.println(splitPoint.getBlobIDList());
+//        System.out.println("masterlfile");
+//        System.out.println(newCommit.getBlobIDList());
+//        System.out.println("otherfile");
+//        System.out.println(mergeCommit.getBlobIDList());
         List<String> overwriteFiles = caculateOverwriteFiles(allFiles, splitPoint, newCommit, mergeCommit);
         List<String> writeFiles = caculateWriteFiles(allFiles, splitPoint, newCommit, mergeCommit);
         List<String> deleteFiles = caculateDeleteFiles(allFiles, splitPoint, newCommit, mergeCommit);
-        System.out.println(overwriteFiles);
-        System.out.println(writeFiles);
-        System.out.println(deleteFiles);
-        overwriteFiles(overwriteFiles, mergeCommit);
-        writeFiles(writeFiles, mergeCommit);
-        deleteFiles(deleteFiles);
+//        System.out.println(overwriteFiles);
+//        System.out.println(writeFiles);
+//        System.out.println(deleteFiles);
+        overwriteFiles(changeBlobIDListToFileNameList(overwriteFiles), mergeCommit);
+        writeFiles(changeBlobIDListToFileNameList(writeFiles), mergeCommit);
+        deleteFiles(changeBlobIDListToFileNameList(deleteFiles));
 
         /* * case 2 4 7 3-1: do nothing */
         //nothing to do here
@@ -839,18 +841,13 @@ public class Repository {
         for (String path : splitPointMap.keySet()) {
             if (newCommitMap.containsKey(path) && mergeCommitMap.containsKey(path)) {
                 if ((splitPointMap.get(path) == newCommitMap.get(path)) && (splitPointMap.get(path) != mergeCommitMap.get(path))) {
-                    String fileName = getBlobNameByBlobID(mergeCommitMap.get(path));
-                    overwriteFiles.add(fileName);
+                    overwriteFiles.add(mergeCommitMap.get(path));
                 }
             }
         }
         return overwriteFiles;
     }
 
-    private static String getBlobNameByBlobID(String blobID) {
-        Blob b = getBlobByID(blobID);
-        return b.getFileName();
-    }
 
     private static List<String> caculateWriteFiles(List<String> allFiles, Commit splitPoint, Commit newCommit, Commit mergeCommit) {
         Map<String, String> splitPointMap = splitPoint.getPathToBlobID();
@@ -859,8 +856,7 @@ public class Repository {
         List<String> writeFiles = new ArrayList<>();
         for (String path : mergeCommitMap.keySet()) {
             if ((!splitPointMap.containsKey(path)) && (!newCommitMap.containsKey(path))) {
-                String fileName = getBlobNameByBlobID(mergeCommitMap.get(path));
-                writeFiles.add(fileName);
+                writeFiles.add(mergeCommitMap.get(path));
             }
         }
         return writeFiles;
@@ -873,26 +869,41 @@ public class Repository {
         List<String> deleteFiles = new ArrayList<>();
         for (String path : splitPointMap.keySet()) {
             if (newCommitMap.containsKey(path) && (!mergeCommitMap.containsKey(path))) {
-                String fileName = getBlobNameByBlobID(newCommitMap.get(path));
-                deleteFiles.add(fileName);
+                deleteFiles.add(newCommitMap.get(path));
             }
         }
         return deleteFiles;
     }
 
+    private static List<String> changeBlobIDListToFileNameList(List<String> blobIDList) {
+        List<String> fileNameList = new ArrayList<>();
+        Blob b;
+        for (String id : blobIDList) {
+            b = getBlobByID(id);
+            fileNameList.add(b.getFileName());
+        }
+        return fileNameList;
+    }
+
     private static Commit caculateMergedCommit(Commit newCommit, List<String> overwriteFiles, List<String> writeFiles, List<String> deleteFiles) {
         Map<String, String> mergedCommitBlobs = newCommit.getPathToBlobID();
-        for (String blobID : overwriteFiles) {
-            Blob b = getBlobByID(blobID);
-            mergedCommitBlobs.put(b.getPath(), blobID);
+        if (!overwriteFiles.isEmpty()) {
+            for (String blobID : overwriteFiles) {
+                Blob b = getBlobByID(blobID);
+                mergedCommitBlobs.put(b.getPath(), blobID);
+            }
         }
-        for (String blobID : writeFiles) {
-            Blob b = getBlobByID(blobID);
-            mergedCommitBlobs.put(b.getPath(), blobID);
+        if (!writeFiles.isEmpty()) {
+            for (String blobID : writeFiles) {
+                Blob b = getBlobByID(blobID);
+                mergedCommitBlobs.put(b.getPath(), blobID);
+            }
         }
-        for (String blobID : overwriteFiles) {
-            Blob b = getBlobByID(blobID);
-            mergedCommitBlobs.remove(b.getPath());
+        if (!deleteFiles.isEmpty()) {
+            for (String blobID : overwriteFiles) {
+                Blob b = getBlobByID(blobID);
+                mergedCommitBlobs.remove(b.getPath());
+            }
         }
         return new Commit(newCommit.getMessage(), mergedCommitBlobs, newCommit.getParentsCommitID());
     }
