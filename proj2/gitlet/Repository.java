@@ -846,7 +846,9 @@ public class Repository {
                 //todo:
                 //System.out.println(conflictContents);
                 File conflictFile = join(CWD, getBlobByID(splitPointMap.get(path)).getFileName());
+                //System.out.println(conflictFile);
                 writeContents(conflictFile, conflictContents);
+                //System.out.println(readContentsAsString(conflictFile));
             }
             // }
         }
