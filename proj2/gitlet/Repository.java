@@ -820,13 +820,14 @@ public class Repository {
         for (String path : splitPointMap.keySet()) {
             if (newCommitMap.containsKey(path) && mergeCommitMap.containsKey(path)) {
                 if ((splitPointMap.get(path) != newCommitMap.get(path)) && (splitPointMap.get(path) != mergeCommitMap.get(path))) {
-                    System.out.println("<<<<<<< HEAD");
+                    System.out.println("Encountered a merge conflict.");
                     Blob newCommitBlob = getBlobByID(newCommitMap.get(path));
-                    System.out.println(Arrays.toString(newCommitBlob.getBytes()));
-                    System.out.println("=======");
+                    String currBranchContents = new String(newCommitBlob.getBytes(), StandardCharsets.UTF_8);
                     Blob mergeCommitBlob = getBlobByID(mergeCommitMap.get(path));
-                    System.out.println(Arrays.toString(mergeCommitBlob.getBytes()));
-                    System.out.println(">>>>>>>");
+                    String givenBranchContents = new String(mergeCommitBlob.getBytes(), StandardCharsets.UTF_8);
+                    String conflictContents = "<<<<<<< HEAD\n" + currBranchContents + "=======\n" + givenBranchContents + ">>>>>>>\n";
+                    File conflictFile = join(CWD, getBlobByID(splitPointMap.get(path)).getFileName());
+                    writeContents(conflictFile, conflictContents);
                 }
             }
         }
