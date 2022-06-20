@@ -844,7 +844,7 @@ public class Repository {
 
                 String conflictContents = "<<<<<<< HEAD\n" + currBranchContents + "=======\n" + givenBranchContents + ">>>>>>>";
                 //todo:
-                System.out.println(conflictContents);
+                //System.out.println(conflictContents);
                 File conflictFile = join(CWD, getBlobByID(splitPointMap.get(path)).getFileName());
                 writeContents(conflictFile, conflictContents);
             }
