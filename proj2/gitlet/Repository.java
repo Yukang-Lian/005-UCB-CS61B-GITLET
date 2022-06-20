@@ -852,6 +852,7 @@ public class Repository {
                 //System.out.println(conflictFile);
                 writeContents(conflictFile, conflictContents);
                 //System.out.println(readContentsAsString(conflictFile));
+                getBlobByID(splitPointMap.get(path)).save();
             }
             // }
         }
