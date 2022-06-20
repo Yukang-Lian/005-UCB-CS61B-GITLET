@@ -88,7 +88,7 @@ public class Commit implements Serializable {
         return pathToBlobID;
     }
 
-    public List<String> getParentsCommit() {
+    public List<String> getParentsCommitID() {
         return parents;
     }
 

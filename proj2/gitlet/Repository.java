@@ -153,12 +153,7 @@ public class Repository {
             System.exit(0);
         }
         Commit newCommit = newCommit(message);
-        newCommit.save();
-        addStage.clear();
-        addStage.saveAddStage();
-        removeStage.clear();
-        removeStage.saveRemoveStage();
-        saveHeads(newCommit);
+        saveNewCommit(newCommit);
     }
 
     private static Commit newCommit(String message) {
@@ -172,6 +167,15 @@ public class Repository {
         blobMap = caculateBlobMap(blobMap, addBlobMap, removeBlobMap);
         List<String> parents = findParents();
         return new Commit(message, blobMap, parents);
+    }
+
+    private static void saveNewCommit(Commit newCommit) {
+        newCommit.save();
+        addStage.clear();
+        addStage.saveAddStage();
+        removeStage.clear();
+        removeStage.saveRemoveStage();
+        saveHeads(newCommit);
     }
 
     private static Map<String, String> findAddBlobMap() {
@@ -290,20 +294,20 @@ public class Repository {
     /* * log command funtion */
     public static void log() {
         currCommit = readCurrCommmit();
-        while (!currCommit.getParentsCommit().isEmpty()) {
+        while (!currCommit.getParentsCommitID().isEmpty()) {
             if (isMergeCommit(currCommit)) {
                 printMergeCommit(currCommit);
             } else {
                 printCommit(currCommit);
             }
-            List<String> parentsCommitID = currCommit.getParentsCommit();
+            List<String> parentsCommitID = currCommit.getParentsCommitID();
             currCommit = readCommitByID(parentsCommitID.get(0));
         }
         printCommit(currCommit);
     }
 
     private static boolean isMergeCommit(Commit currCommmit) {
-        return currCommmit.getParentsCommit().size() == 2;
+        return currCommmit.getParentsCommitID().size() == 2;
     }
 
     private static void printCommit(Commit currCommmit) {
@@ -326,7 +330,7 @@ public class Repository {
     }
 
     private static void printMergeMark(Commit currCommmit) {
-        List<String> ParentsCommitID = currCommmit.getParentsCommit();
+        List<String> ParentsCommitID = currCommmit.getParentsCommitID();
         String parent1 = ParentsCommitID.get(0);
         String parent2 = ParentsCommitID.get(1);
         System.out.println("Merge: " + parent1.substring(0, 7) + parent2.substring(0, 7));
@@ -698,16 +702,17 @@ public class Repository {
         checkIfBranchExists(mergeBranch);
         checkIfMergeWithSelf(mergeBranch);
 
-        Commit splitPoint = findSplitPoint();
         currCommit = readCurrCommmit();
         Commit mergeCommit = readCommitByBranchName(mergeBranch);
-        Map<String, String> mergedBlobs = mergeFiles(splitPoint, currCommit, mergeCommit);
+        Commit splitPoint = findSplitPoint(currCommit, mergeCommit);
+        Map<String, String> currCommitBlobs = currCommit.getPathToBlobID();
 
         String message = "Merged " + mergeBranch + " into " + currBranch + ".";
         List<String> parents = new ArrayList<>(List.of(currBranch, mergeBranch));
-        Commit mergedCommit = new Commit(message, mergedBlobs, parents);
+        Commit newCommit = new Commit(message, currCommitBlobs, parents);
 
-        changeBranchHeadTo(mergedCommit.getID(), currBranch);
+        Commit mergedCommit = mergeFilesToNewCommit(splitPoint, newCommit, mergeCommit);
+        saveNewCommit(mergedCommit);
     }
 
     private static void checkIfStageEmpty() {
@@ -724,6 +729,40 @@ public class Repository {
             System.out.println("Cannot merge a branch with itself.");
             System.exit(0);
         }
+    }
+
+    private static Commit findSplitPoint(Commit commit1, Commit commit2) {
+        int commit1Length = caculateCommitLength(commit1);
+        int commit2Length = caculateCommitLength(commit2);
+        if (commit1Length > commit2Length) {
+            return caculateSplitPoint(commit1Length - commit2Length, commit1, commit2);
+        } else {
+            return caculateSplitPoint(commit2Length - commit1Length, commit2, commit1);
+        }
+    }
+
+    private static int caculateCommitLength(Commit commit) {
+        int length = 0;
+        while (!commit.getParentsCommitID().isEmpty()) {
+            commit = readCommitByID(commit.getParentsCommitID().get(0));
+            length++;
+        }
+        return length + 1;
+    }
+
+    private static Commit caculateSplitPoint(int diff, Commit commit1, Commit commit2) {
+        while (diff > 0) {
+            commit1 = readCommitByID(commit1.getParentsCommitID().get(0));
+        }
+        while (!commit1.getID().equals(commit2.getID())) {
+            commit1 = readCommitByID(commit1.getParentsCommitID().get(0));
+            commit2 = readCommitByID(commit2.getParentsCommitID().get(0));
+        }
+        return commit1;
+    }
+
+    private static Commit mergeFilesToNewCommit(Commit splitPoint, Commit newCommit, Commit mergeCommit) {
+        
     }
 }
 

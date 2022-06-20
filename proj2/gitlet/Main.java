@@ -163,7 +163,6 @@ public class Main {
                 validArgs(args, 2);
 
                 Repository.checkIfInitialized();
-
                 Repository.merge(args[1]);
                 break;
 
