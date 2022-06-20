@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
@@ -768,9 +769,6 @@ public class Repository {
 
         List<String> allFiles = caculateAllFiles(splitPoint, newCommit, mergeCommit);
 
-        /* * case 3-1: deal conflict */
-        checkIfConflict(allFiles, splitPoint, newCommit, mergeCommit);
-
         /*
          * case 1 5 6: write mergeCommit files into newCommit
          * case 1: overwrite files
@@ -795,6 +793,9 @@ public class Repository {
         overwriteFiles(changeBlobIDListToFileNameList(overwriteFiles), mergeCommit);
         writeFiles(changeBlobIDListToFileNameList(writeFiles), mergeCommit);
         deleteFiles(changeBlobIDListToFileNameList(deleteFiles));
+
+        /* * case 3-1: deal conflict */
+        checkIfConflict(allFiles, splitPoint, newCommit, mergeCommit);
 
         /* * case 2 4 7 3-1: do nothing */
         //nothing to do here
@@ -845,7 +846,9 @@ public class Repository {
                 String conflictContents = "<<<<<<< HEAD\n" + currBranchContents + "=======\n" + givenBranchContents + ">>>>>>>\n";
                 //todo:
                 //System.out.println(conflictContents);
-                File conflictFile = join(CWD, getBlobByID(splitPointMap.get(path)).getFileName());
+                String fileName = getBlobByID(splitPointMap.get(path)).getFileName();
+                //System.out.println(fileName);
+                File conflictFile = join(CWD, fileName);
                 //System.out.println(conflictFile);
                 writeContents(conflictFile, conflictContents);
                 //System.out.println(readContentsAsString(conflictFile));
