@@ -817,19 +817,38 @@ public class Repository {
         Map<String, String> splitPointMap = splitPoint.getPathToBlobID();
         Map<String, String> newCommitMap = newCommit.getPathToBlobID();
         Map<String, String> mergeCommitMap = mergeCommit.getPathToBlobID();
+//        System.out.println(splitPointMap);
+//        System.out.println(newCommitMap);
+//        System.out.println(mergeCommitMap);
         for (String path : splitPointMap.keySet()) {
-            if (newCommitMap.containsKey(path) && mergeCommitMap.containsKey(path)) {
-                if ((splitPointMap.get(path) != newCommitMap.get(path)) && (splitPointMap.get(path) != mergeCommitMap.get(path))) {
-                    System.out.println("Encountered a merge conflict.");
+            //if (newCommitMap.containsKey(path) && mergeCommitMap.containsKey(path)) {
+            if ((!splitPointMap.get(path).equals(newCommitMap.get(path))) &&
+                    (!splitPointMap.get(path).equals(mergeCommitMap.get(path))) &&
+                    (!newCommitMap.get(path).equals(mergeCommitMap.get(path)))) {
+//                System.out.println(splitPointMap.get(path));
+//                System.out.println(newCommitMap.get(path));
+//                System.out.println(mergeCommitMap.get(path));
+                System.out.println("Encountered a merge conflict.");
+
+                String currBranchContents = "";
+                if (newCommitMap.containsKey(path)) {
                     Blob newCommitBlob = getBlobByID(newCommitMap.get(path));
-                    String currBranchContents = new String(newCommitBlob.getBytes(), StandardCharsets.UTF_8);
-                    Blob mergeCommitBlob = getBlobByID(mergeCommitMap.get(path));
-                    String givenBranchContents = new String(mergeCommitBlob.getBytes(), StandardCharsets.UTF_8);
-                    String conflictContents = "<<<<<<< HEAD\n" + currBranchContents + "=======\n" + givenBranchContents + ">>>>>>>\n";
-                    File conflictFile = join(CWD, getBlobByID(splitPointMap.get(path)).getFileName());
-                    writeContents(conflictFile, conflictContents);
+                    currBranchContents = new String(newCommitBlob.getBytes(), StandardCharsets.UTF_8);
                 }
+
+                String givenBranchContents = "";
+                if (mergeCommitMap.containsKey(path)) {
+                    Blob mergeCommitBlob = getBlobByID(mergeCommitMap.get(path));
+                    givenBranchContents = new String(mergeCommitBlob.getBytes(), StandardCharsets.UTF_8);
+                }
+
+                String conflictContents = "<<<<<<< HEAD\n" + currBranchContents + "=======\n" + givenBranchContents + ">>>>>>>\n";
+                //todo:
+                System.out.println(conflictContents);
+                File conflictFile = join(CWD, getBlobByID(splitPointMap.get(path)).getFileName());
+                writeContents(conflictFile, conflictContents);
             }
+            // }
         }
 
     }
