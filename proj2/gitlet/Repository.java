@@ -842,7 +842,7 @@ public class Repository {
                     givenBranchContents = new String(mergeCommitBlob.getBytes(), StandardCharsets.UTF_8);
                 }
 
-                String conflictContents = "<<<<<<< HEAD\n" + currBranchContents + "=======\n" + givenBranchContents + ">>>>>>>\n";
+                String conflictContents = "<<<<<<< HEAD\n" + currBranchContents + "=======\n" + givenBranchContents + ">>>>>>>";
                 //todo:
                 System.out.println(conflictContents);
                 File conflictFile = join(CWD, getBlobByID(splitPointMap.get(path)).getFileName());
