@@ -80,4 +80,8 @@ public class Stage implements Serializable {
     public Blob getBlobByPath(String path) {
         return getBlobByID(pathToBlobID.get(path));
     }
+
+    public boolean isEmpty() {
+        return getBlobMap().size() == 0;
+    }
 }

@@ -675,14 +675,53 @@ public class Repository {
         changeCommitTo(newCommit);
 
         currBranch = readCurrBranch();
-        File branchFile = join(HEADS_DIR, currBranch);
-        writeContents(branchFile, commitID);
+        changeBranchHeadTo(commitID, currBranch);
     }
 
     private static void checkIfCommitIDExists(String commitID) {
         Commit commit = readCommitByID(commitID);
         if (commit == null) {
             System.out.println("No commit with that id exists.");
+            System.exit(0);
+        }
+    }
+
+    private static void changeBranchHeadTo(String commitID, String branchName) {
+        File branchFile = join(HEADS_DIR, branchName);
+        writeContents(branchFile, commitID);
+    }
+
+    /* * merge command funtion */
+    public static void merge(String mergeBranch) {
+        currBranch = readCurrBranch();
+        checkIfStageEmpty();
+        checkIfBranchExists(mergeBranch);
+        checkIfMergeWithSelf(mergeBranch);
+
+        Commit splitPoint = findSplitPoint();
+        currCommit = readCurrCommmit();
+        Commit mergeCommit = readCommitByBranchName(mergeBranch);
+        Map<String, String> mergedBlobs = mergeFiles(splitPoint, currCommit, mergeCommit);
+
+        String message = "Merged " + mergeBranch + " into " + currBranch + ".";
+        List<String> parents = new ArrayList<>(List.of(currBranch, mergeBranch));
+        Commit mergedCommit = new Commit(message, mergedBlobs, parents);
+
+        changeBranchHeadTo(mergedCommit.getID(), currBranch);
+    }
+
+    private static void checkIfStageEmpty() {
+        addStage = readAddStage();
+        removeStage = readRemoveStage();
+        if (!(addStage.isEmpty() && removeStage.isEmpty())) {
+            System.out.println("You have uncommitted changes.");
+            System.exit(0);
+        }
+    }
+
+    private static void checkIfMergeWithSelf(String branchName) {
+        if (currBranch.equals(branchName)) {
+            System.out.println("Cannot merge a branch with itself.");
             System.exit(0);
         }
     }

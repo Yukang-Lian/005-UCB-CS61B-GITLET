@@ -131,6 +131,7 @@ public class Main {
                 }
                 break;
 
+            /* * branch command */
             case "branch":
                 validArgs(args, 2);
 
@@ -139,6 +140,7 @@ public class Main {
                 Repository.branch(args[1]);
                 break;
 
+            /* * rm-branch command */
             case "rm-branch":
                 validArgs(args, 2);
 
@@ -147,12 +149,22 @@ public class Main {
                 Repository.rm_branch(args[1]);
                 break;
 
+            /* * reset command */
             case "reset":
                 validArgs(args, 2);
 
                 Repository.checkIfInitialized();
 
                 Repository.reset(args[1]);
+                break;
+
+            /* * merge command */
+            case "merge":
+                validArgs(args, 2);
+
+                Repository.checkIfInitialized();
+
+                Repository.merge(args[1]);
                 break;
 
             default:
