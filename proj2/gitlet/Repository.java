@@ -740,8 +740,6 @@ public class Repository {
     private static Commit findSplitPoint(Commit commit1, Commit commit2) {
         Map<String, Integer> commit1IDToLength = caculateCommitMap(commit1, 0);
         Map<String, Integer> commit2IDToLength = caculateCommitMap(commit2, 0);
-        //System.out.println(commit1IDToLength);
-        //System.out.println(commit2IDToLength);
         return caculateSplitPoint(commit1IDToLength, commit2IDToLength);
     }
 
@@ -773,8 +771,6 @@ public class Repository {
     }
 
     private static void checkIfSplitPintIsGivenBranch(Commit splitPoint, Commit mergeCommit) {
-        //System.out.println(splitPoint.getID());
-        //System.out.println(mergeCommit.getID());
         if (splitPoint.getID().equals(mergeCommit.getID())) {
             System.out.println("Given branch is an ancestor of the current branch.");
             System.exit(0);
@@ -798,43 +794,20 @@ public class Repository {
          * case 5: write files
          * case 6: delete files
          */
-        //todo:
-//        System.out.println("allfile");
-//        System.out.println(allFiles);
-//        System.out.println("splitfile");
-//        System.out.println(splitPoint.getBlobIDList());
-//        System.out.println("masterlfile");
-//        System.out.println(newCommit.getBlobIDList());
-//        System.out.println("otherfile");
-//        System.out.println(mergeCommit.getBlobIDList());
-//        System.out.println(changeBlobIDListToFileNameList(allFiles));
-//        System.out.println(changeBlobIDListToFileNameList(splitPoint.getBlobIDList()));
-//        System.out.println(changeBlobIDListToFileNameList(newCommit.getBlobIDList()));
-//        System.out.println(changeBlobIDListToFileNameList(mergeCommit.getBlobIDList()));
         List<String> overwriteFiles = caculateOverwriteFiles(allFiles, splitPoint, newCommit, mergeCommit);
         List<String> writeFiles = caculateWriteFiles(allFiles, splitPoint, newCommit, mergeCommit);
         List<String> deleteFiles = caculateDeleteFiles(allFiles, splitPoint, newCommit, mergeCommit);
-//        System.out.println(overwriteFiles);
-//        System.out.println(writeFiles);
-//        System.out.println(deleteFiles);
-//        System.out.println(changeBlobIDListToFileNameList(overwriteFiles));
-//        System.out.println(changeBlobIDListToFileNameList(writeFiles));
-//        System.out.println(changeBlobIDListToFileNameList(deleteFiles));
+
         overwriteFiles(changeBlobIDListToFileNameList(overwriteFiles), mergeCommit);
         writeFiles(changeBlobIDListToFileNameList(writeFiles), mergeCommit);
         deleteFiles(changeBlobIDListToFileNameList(deleteFiles));
 
         /* * case 3-1: deal conflict */
-//        System.out.println(splitPoint.getID());
-//        System.out.println(newCommit.getID());
-//        System.out.println(mergeCommit.getID());
-
         checkIfConflict(allFiles, splitPoint, newCommit, mergeCommit);
 
         /* * case 2 4 7 3-1: do nothing */
         //nothing to do here
 
-        /* */
         return caculateMergedCommit(newCommit, overwriteFiles, writeFiles, deleteFiles);
     }
 
@@ -852,31 +825,29 @@ public class Repository {
         Map<String, String> splitPointMap = splitPoint.getPathToBlobID();
         Map<String, String> newCommitMap = newCommit.getPathToBlobID();
         Map<String, String> mergeCommitMap = mergeCommit.getPathToBlobID();
-        //System.out.println(splitPointMap);
-        //System.out.println(newCommitMap);
-        //System.out.println(mergeCommitMap);
-        for (String path : splitPointMap.keySet()) {
-            if ((newCommitMap.containsKey(path) && mergeCommitMap.containsKey(path)) &&
-                    (!splitPointMap.get(path).equals(newCommitMap.get(path))) &&
-                    (!splitPointMap.get(path).equals(mergeCommitMap.get(path))) &&
-                    (!newCommitMap.get(path).equals(mergeCommitMap.get(path)))
-                    ||
-                    (newCommitMap.containsKey(path) && !mergeCommitMap.containsKey(path)) &&
-                            (!splitPointMap.get(path).equals(newCommitMap.get(path)))
-                    ||
-                    (mergeCommitMap.containsKey(path) && !newCommitMap.containsKey(path)) &&
-                            (!splitPointMap.get(path).equals(mergeCommitMap.get(path)))
-            ) {
 
-//            System.out.println(splitPointMap.get(path));
-//            System.out.println(newCommitMap.get(path));
-//            System.out.println(mergeCommitMap.get(path));
-//            if ((!splitPointMap.get(path).equals(newCommitMap.get(path))) &&
-//                    (!splitPointMap.get(path).equals(mergeCommitMap.get(path))) &&
-//                    (!newCommitMap.get(path).equals(mergeCommitMap.get(path)))) {
+        boolean conflict = false;
+        for (String blobID : allFiles) {
+            String path = getBlobByID(blobID).getPath();
+            int commonPath = 0;
+            if (splitPointMap.containsKey(path)) {
+                commonPath += 1;
+            }
+            if (newCommitMap.containsKey(path)) {
+                commonPath += 2;
+            }
+            if (mergeCommitMap.containsKey(path)) {
+                commonPath += 4;
+            }
+            if ((commonPath == 3 && (!splitPointMap.get(path).equals(newCommitMap.get(path)))) ||
+                    (commonPath == 5 && (!splitPointMap.get(path).equals(mergeCommitMap.get(path)))) ||
+                    (commonPath == 6 && (!newCommitMap.get(path).equals(mergeCommitMap.get(path)))) ||
+                    (commonPath == 7 &&
+                            (!splitPointMap.get(path).equals(newCommitMap.get(path))) &&
+                            (!splitPointMap.get(path).equals(mergeCommitMap.get(path))) &&
+                            (!newCommitMap.get(path).equals(mergeCommitMap.get(path))))) {
 
-                System.out.println("Encountered a merge conflict.");
-
+                conflict = true;
                 String currBranchContents = "";
                 if (newCommitMap.containsKey(path)) {
                     Blob newCommitBlob = getBlobByID(newCommitMap.get(path));
@@ -890,16 +861,15 @@ public class Repository {
                 }
 
                 String conflictContents = "<<<<<<< HEAD\n" + currBranchContents + "=======\n" + givenBranchContents + ">>>>>>>\n";
-                //todo:
-                //System.out.println(conflictContents);
-                String fileName = getBlobByID(splitPointMap.get(path)).getFileName();
-                //System.out.println(fileName);
+                String fileName = getBlobByID(blobID).getFileName();
                 File conflictFile = join(CWD, fileName);
-                //System.out.println(conflictFile);
                 writeContents(conflictFile, conflictContents);
-                //System.out.println(readContentsAsString(conflictFile));
-                getBlobByID(splitPointMap.get(path)).save();
             }
+
+        }
+
+        if (conflict) {
+            System.out.println("Encountered a merge conflict.");
         }
     }
 
@@ -959,8 +929,7 @@ public class Repository {
         return fileNameList;
     }
 
-    private static Commit caculateMergedCommit(Commit
-                                                       newCommit, List<String> overwriteFiles, List<String> writeFiles, List<String> deleteFiles) {
+    private static Commit caculateMergedCommit(Commit newCommit, List<String> overwriteFiles, List<String> writeFiles, List<String> deleteFiles) {
         Map<String, String> mergedCommitBlobs = newCommit.getPathToBlobID();
         if (!overwriteFiles.isEmpty()) {
             for (String blobID : overwriteFiles) {
@@ -984,17 +953,3 @@ public class Repository {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
