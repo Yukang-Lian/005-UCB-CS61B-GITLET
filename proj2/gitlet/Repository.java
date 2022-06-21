@@ -736,33 +736,35 @@ public class Repository {
     }
 
     private static Commit findSplitPoint(Commit commit1, Commit commit2) {
-        int commit1Length = caculateCommitLength(commit1);
-        int commit2Length = caculateCommitLength(commit2);
-        if (commit1Length > commit2Length) {
-            return caculateSplitPoint(commit1Length - commit2Length, commit1, commit2);
-        } else {
-            return caculateSplitPoint(commit2Length - commit1Length, commit2, commit1);
-        }
+        Map<String, Integer> commit1IDToLength = caculateCommitMap(commit1, 0);
+        Map<String, Integer> commit2IDToLength = caculateCommitMap(commit2, 0);
+        //System.out.println(commit1IDToLength);
+        //System.out.println(commit2IDToLength);
+        return caculateSplitPoint(commit1IDToLength, commit2IDToLength);
     }
 
-    private static int caculateCommitLength(Commit commit) {
-        int length = 0;
-        while (!commit.getParentsCommitID().isEmpty()) {
-            commit = readCommitByID(commit.getParentsCommitID().get(0));
-            length++;
+    private static Map<String, Integer> caculateCommitMap(Commit commit, int length) {
+        Map<String, Integer> map = new HashMap<>();
+        if (commit.getParentsCommitID().isEmpty()) {
+            map.put(commit.getID(), length);
+            return map;
         }
-        return length + 1;
+        map.put(commit.getID(), length);
+        length++;
+        for (String id : commit.getParentsCommitID()) {
+            Commit parent = readCommitByID(id);
+            map.putAll(caculateCommitMap(parent, length));
+        }
+        return map;
     }
 
-    private static Commit caculateSplitPoint(int diff, Commit commit1, Commit commit2) {
-        while (diff > 0) {
-            commit1 = readCommitByID(commit1.getParentsCommitID().get(0));
+    private static Commit caculateSplitPoint(Map<String, Integer> map1, Map<String, Integer> map2) {
+        for (String id : map1.keySet()) {
+            if (map2.containsKey(id)) {
+                return readCommitByID(id);
+            }
         }
-        while (!commit1.getID().equals(commit2.getID())) {
-            commit1 = readCommitByID(commit1.getParentsCommitID().get(0));
-            commit2 = readCommitByID(commit2.getParentsCommitID().get(0));
-        }
-        return commit1;
+        return new Commit();
     }
 
     private static Commit mergeFilesToNewCommit(Commit splitPoint, Commit newCommit, Commit mergeCommit) {
