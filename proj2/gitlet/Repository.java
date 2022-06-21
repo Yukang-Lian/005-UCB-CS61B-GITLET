@@ -764,6 +764,7 @@ public class Repository {
                 return readCommitByID(id);
             }
         }
+        System.out.println("error");
         return new Commit();
     }
 
