@@ -759,13 +759,15 @@ public class Repository {
     }
 
     private static Commit caculateSplitPoint(Map<String, Integer> map1, Map<String, Integer> map2) {
+        int minLength = Integer.MAX_VALUE;
+        String minID = "";
         for (String id : map1.keySet()) {
-            if (map2.containsKey(id)) {
-                return readCommitByID(id);
+            if (map2.containsKey(id) && map2.get(id) < minLength) {
+                minID = id;
+                minLength = map1.get(id);
             }
         }
-        System.out.println("error");
-        return new Commit();
+        return readCommitByID(minID);
     }
 
     private static Commit mergeFilesToNewCommit(Commit splitPoint, Commit newCommit, Commit mergeCommit) {
