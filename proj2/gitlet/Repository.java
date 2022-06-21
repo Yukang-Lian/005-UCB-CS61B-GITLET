@@ -707,6 +707,8 @@ public class Repository {
         currCommit = readCurrCommmit();
         Commit mergeCommit = readCommitByBranchName(mergeBranch);
         Commit splitPoint = findSplitPoint(currCommit, mergeCommit);
+        checkIfSplitPintIsGivenBranch(splitPoint, mergeCommit);
+        checkIfSplitPintIsCurrBranch(splitPoint, mergeBranch);
         Map<String, String> currCommitBlobs = currCommit.getPathToBlobID();
 
         String message = "Merged " + mergeBranch + " into " + currBranch + ".";
@@ -764,10 +766,26 @@ public class Repository {
         for (String id : map1.keySet()) {
             if (map2.containsKey(id) && map2.get(id) < minLength) {
                 minID = id;
-                minLength = map1.get(id);
+                minLength = map2.get(id);
             }
         }
         return readCommitByID(minID);
+    }
+
+    private static void checkIfSplitPintIsGivenBranch(Commit splitPoint, Commit mergeCommit) {
+        //System.out.println(splitPoint.getID());
+        //System.out.println(mergeCommit.getID());
+        if (splitPoint.getID().equals(mergeCommit.getID())) {
+            System.out.println("Given branch is an ancestor of the current branch.");
+            System.exit(0);
+        }
+    }
+
+    private static void checkIfSplitPintIsCurrBranch(Commit splitPoint, String mergeBranch) {
+        if (splitPoint.getID().equals(currCommit.getID())) {
+            System.out.println("Current branch fast-forwarded.");
+            checkoutBranch(mergeBranch);
+        }
     }
 
     private static Commit mergeFilesToNewCommit(Commit splitPoint, Commit newCommit, Commit mergeCommit) {
