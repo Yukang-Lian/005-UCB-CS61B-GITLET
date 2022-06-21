@@ -951,5 +951,4 @@ public class Repository {
         }
         return new Commit(newCommit.getMessage(), mergedCommitBlobs, newCommit.getParentsCommitID());
     }
-
 }
